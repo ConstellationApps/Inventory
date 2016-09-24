@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8" />
+		<meta name="viewport" content="width=device-width" />
+		<title>Orderboard</title>
+		<link rel="stylesheet" type="text/css" href="{% static 'orderboard/style.css' %}">
+	</head>
+	<body>
+		<div id="boards">
+			{% for stage in stage_list %}
+			<div class="stage" id="{{ stage.stage_name }}">
+				{% for card in stage.cards %}
+				<div id="card_{{ card.card_id }}">
+					<div id="card_{{ card.card_id }}_title" class="card_title">{{ card.title }}</div>
+					<div id="card_{{ card.card_id }}_notes" class="card_notes">{{ card.notes }}</div>
+				</div>
+				{% endfor %}
+			</div>
+			{% endfor %}
+		</div>
+		<hr/>
+		<form method="post" action="">
+			{{ formset }}
+		</form>
+	</body>
+</html>
