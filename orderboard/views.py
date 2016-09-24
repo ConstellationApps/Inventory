@@ -29,3 +29,33 @@ def index(request):
         allCards.append(phaseDict)
 
     return render(request, 'orderboard/index.html', {'formset': formset, 'stage_list':allCards})
+
+def move_left(request, cardID):
+    # This is safe to assert since the primary key must only ever return a single result
+    item = Item.objects.filter(pk=cardID)[0]
+
+    stageIndex = 0
+    for stageTuple in Item.LIFECYCLE_STAGES:
+        if item.stage == stageTuple[0]:
+            print(str(stageTuple))
+            stageIndex = Item.LIFECYCLE_STAGES.index(stageTuple)
+            print(stageIndex)
+            item.stage = Item.LIFECYCLE_STAGES[stageIndex - 1][0]
+            item.save()
+            break
+    return HttpResponse(Item.LIFECYCLE_STAGES[stageIndex - 1][1])
+
+def move_right(request, cardID):
+    # This is safe to assert since the primary key must only ever return a single result
+    item = Item.objects.filter(pk=cardID)[0]
+
+    stageIndex = 0
+    for stageTuple in Item.LIFECYCLE_STAGES:
+        if item.stage == stageTuple[0]:
+            print(str(stageTuple))
+            stageIndex = Item.LIFECYCLE_STAGES.index(stageTuple)
+            print(stageIndex)
+            item.stage = Item.LIFECYCLE_STAGES[stageIndex + 1][0]
+            item.save()
+            break
+    return HttpResponse(Item.LIFECYCLE_STAGES[stageIndex + 1][1])
