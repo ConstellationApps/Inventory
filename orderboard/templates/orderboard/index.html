@@ -2,6 +2,7 @@
 <html>
 	<head>
 		<meta charset="utf-8" />
+		{% load staticfiles %}
 		<meta name="viewport" content="width=device-width" />
 		<title>Orderboard</title>
 		<link rel="stylesheet" type="text/css" href="{% static 'orderboard/style.css' %}">
@@ -21,7 +22,14 @@
 		</div>
 		<hr/>
 		<form method="post" action="">
-			{{ formset }}
+			{{ formset.management_form }}
+			{% csrf_token %}
+			<table>
+				{% for form in formset %}
+				{{ form }}
+				{% endfor %}
+			</table>
+			<input type="submit" value="Submit Item" class="button"/>
 		</form>
 	</body>
 </html>
