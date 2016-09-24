@@ -29,8 +29,3 @@ def index(request):
         allCards.append(phaseDict)
 
     return render(request, 'orderboard/index.html', {'formset': formset, 'stage_list':allCards})
-
-
-def new_item(request):
-    form = ItemForm()
-    return HttpResponse(form)
