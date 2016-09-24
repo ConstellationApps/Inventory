@@ -11,13 +11,17 @@
 	<body>
 		<div id="boards">
 			{% for stage in stage_list %}
-			<div class="stage" id="stage_{{ stage.stage_name }}">
+			<div class="stage" id="stage_{{ stage.name }}">
+				<h3>{{ stage.name }}</h3>
 				{% for card in stage.cards %}
-				<div id="card_{{ card.card_id }}">
-					<div id="card_{{ card.card_id }}_name" class="card_name">{{ card.name }}</div>
-					<div id="card_{{ card.card_id }}_quantity" class="card_quantity">{{ card.quantity }}</div>
-					<div id="card_{{ card.card_id }}_notes" class="card_notes">{{ card.notes }}</div>
-					<button onclick="moveItem({{ card.card_id }})" id="card_{{ card.card_id }}_button" class="card_button">Move To Next</button>
+				<div id="card_{{ card.id }}" class="card">
+					<div class="card_header">
+						<span class="card_name">{{ card.name }}</span>(<span id="card_{{ card.id }}_quantity" class="card_quantity">{{ card.quantity }}</span>)
+					</div>
+					<div id="card_{{ card.id }}_notes" class="card_notes">{{ card.notes }}</div>
+					<button onclick="moveItem({{ card.id }}, 'left')" id="card_{{ card.id }}_left_button" class="card_button card_left_button">&lt;</button>
+					<button onclick="moveItem({{ card.id }}, 'right')" id="card_{{ card.id }}_right_button" class="card_button card_right_button">&gt;</button>
+					<div onclick="deleteItem({{ card.id }})" id="card_{{ card.id }}_close_button" class="card_button card_close_button">&times;</div>
 				</div>
 				{% endfor %}
 			</div>
@@ -25,6 +29,7 @@
 			<div id="clear" style="clear:both;"></div>
 		</div>
 		<hr/>
+		<h2>Add a new item</h2>
 		<form method="post" action="">
 			{{ formset.management_form }}
 			{% csrf_token %}
@@ -35,5 +40,6 @@
 			</table>
 			<input type="submit" value="Submit Item" class="button"/>
 		</form>
+		<br/>
 	</body>
 </html>
