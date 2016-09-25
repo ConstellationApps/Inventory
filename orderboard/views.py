@@ -16,6 +16,8 @@ def index(request):
 
     allCards = []
     for phase in Item.LIFECYCLE_STAGES:
+        if phase == Item.LIFECYCLE_STAGES[-1]:
+            continue
         phaseDict = {}
         phaseDict['name'] = phase[1]
         phaseDict['cards'] = []
