@@ -62,7 +62,7 @@ def move_right(request, cardID):
             break
     return HttpResponse(Item.LIFECYCLE_STAGES[stageIndex + 1][1])
 
-def archive(request, cardID):
+def move_archive(request, cardID):
     item = Item.objects.filter(pk=cardID)[0]
     item.stage = Item.LIFECYCLE_STAGES[-1][0]
     item.save()

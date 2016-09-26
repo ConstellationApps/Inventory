@@ -29,6 +29,6 @@ function deleteItem(id) {
             }
         }
     };
-    xhttp.open('GET', '/order/archive/' + id, true);
+    xhttp.open('GET', '/order/move/' + id + '/archive', true);
     xhttp.send();
 }
