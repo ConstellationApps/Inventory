@@ -67,3 +67,18 @@ def move_archive(request, cardID):
     item.stage = Item.LIFECYCLE_STAGES[-1][0]
     item.save()
     return HttpResponse("Archived " + str(cardID))
+
+def view_archive(request):
+    phase = Item.LIFECYCLE_STAGES[-1]
+    phaseDict = {}
+    phaseDict['name'] = phase[1]
+    phaseDict['cards'] = []
+    for item in Item.objects.filter(stage=phase[0]):
+        cardDict = {}
+        cardDict['id'] = item.pk
+        cardDict['name'] = item.name
+        cardDict['quantity'] = item.quantity
+        cardDict['notes'] = item.notes
+        phaseDict['cards'].append(cardDict)
+
+    return render(request, "orderboard/archive.html", {"archive":phaseDict})
