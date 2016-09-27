@@ -39,9 +39,7 @@ def move_left(request, cardID):
     stageIndex = 0
     for stageTuple in Item.LIFECYCLE_STAGES:
         if item.stage == stageTuple[0]:
-            print(str(stageTuple))
             stageIndex = Item.LIFECYCLE_STAGES.index(stageTuple)
-            print(stageIndex)
             item.stage = Item.LIFECYCLE_STAGES[stageIndex - 1][0]
             item.save()
             break
@@ -54,9 +52,7 @@ def move_right(request, cardID):
     stageIndex = 0
     for stageTuple in Item.LIFECYCLE_STAGES:
         if item.stage == stageTuple[0]:
-            print(str(stageTuple))
             stageIndex = Item.LIFECYCLE_STAGES.index(stageTuple)
-            print(stageIndex)
             item.stage = Item.LIFECYCLE_STAGES[stageIndex + 1][0]
             item.save()
             break
