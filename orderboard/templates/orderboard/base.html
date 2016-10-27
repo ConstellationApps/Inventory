@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        {% block head %}
+        <meta charset="utf-8" />
+        {% load staticfiles %}
+        <meta name="viewport" content="width=device-width" />
+        <title>{% block title %}{% endblock %}</title>
+        <link href="http://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+        <link type="text/css" rel="stylesheet" href="{% static 'orderboard/css/materialize.min.css' %}"  media="screen,projection"/>
+        <link rel="stylesheet" type="text/css" href="{% static 'orderboard/css/style.css' %}">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+        {% endblock %}
+    </head>
+    <body>
+        <nav class="green darken-2">
+            <div class="nav-wrapper container">
+                <a href="#" class="brand-logo">{% block heading %}{% endblock %}</a>
+                <a href="#" data-activates="mobile-menu" class="button-collapse"><i class="material-icons">menu</i></a>
+                <ul id="nav-mobile" class="right hide-on-med-and-down">
+                    <li><a href="/logout">Logout</a></li>
+                </ul>
+                <ul class="side-nav" id="mobile-menu">
+                    <li><a href="/logout">Logout</a></li>
+                </ul>
+            </div>
+        </nav>
+        <div id="content" class="container">{% block content %}{% endblock %}</div>
+        <script src="https://code.jquery.com/jquery-2.1.1.min.js"></script>
+        <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+        <script type="text/javascript" src="{% static 'orderboard/js/materialize.min.js' %}"></script>
+        <script src="{% static 'orderboard/js/script.js' %}" type="text/javascript" charset="utf-8"></script>
+    </body>
+</html>

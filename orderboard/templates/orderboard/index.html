@@ -1,45 +1,64 @@
-<!DOCTYPE html>
-<html>
-	<head>
-		<meta charset="utf-8" />
-		{% load staticfiles %}
-		<meta name="viewport" content="width=device-width" />
-		<title>Orderboard</title>
-		<link rel="stylesheet" type="text/css" href="{% static 'orderboard/style.css' %}">
-		<script src="{% static 'orderboard/script.js' %}" type="text/javascript" charset="utf-8"></script>
-	</head>
-	<body>
-		<div id="boards">
-			{% for stage in stage_list %}
-			<div class="stage" id="stage_{{ stage.name }}">
-				<h3>{{ stage.name }}</h3>
-				{% for card in stage.cards %}
-				<div id="card_{{ card.id }}" class="card">
-					<div class="card_header">
-						<span class="card_name">{{ card.name }}</span>(<span id="card_{{ card.id }}_quantity" class="card_quantity">{{ card.quantity }}</span>)
-					</div>
-					<div id="card_{{ card.id }}_notes" class="card_notes">{{ card.notes }}</div>
-					<button onclick="moveItem({{ card.id }}, 'left')" id="card_{{ card.id }}_left_button" class="card_button card_left_button">&lt;</button>
-					<button onclick="moveItem({{ card.id }}, 'right')" id="card_{{ card.id }}_right_button" class="card_button card_right_button">&gt;</button>
-					<div onclick="deleteItem({{ card.id }})" id="card_{{ card.id }}_close_button" class="card_button card_close_button">&times;</div>
-				</div>
-				{% endfor %}
-			</div>
-			{% endfor %}
-			<div id="clear" style="clear:both;"></div>
-		</div>
-		<hr/>
-		<h2>Add a new item</h2>
-		<form method="post" action="">
-			{{ formset.management_form }}
-			{% csrf_token %}
-			<table>
-				{% for form in formset %}
-				{{ form }}
-				{% endfor %}
-			</table>
-			<input type="submit" value="Submit Item" class="button"/>
-		</form>
-		<br/>
-	</body>
-</html>
+{% extends "orderboard/base.html" %}
+{% block title %}Orderboard{% endblock %}
+{% block heading %}Orderboard{% endblock %}
+{% block content %}
+<div class="row" id="boards">
+    {% for stage in stage_list %}
+    <div class="col l3 s12 stage" id="stage_{{ stage.name }}">
+        <h4>{{ stage.name }}</h4>
+        {% for card in stage.cards %}
+        <div id="card_{{ card.id }}" class="card-panel teal white-text">
+            <div class="card_header">
+                <span class="card_name">{{ card.name }}</span> <span id="card_{{ card.id }}_quantity" class="white-text">({{ card.quantity }})</span>
+            </div>
+                <div id="card_{{ card.id }}_notes" class="card_notes">{{ card.notes }}</div>
+                <button onclick="moveItem({{ card.id }}, 'left')" id="card_{{ card.id }}_left_button" class="card_button card_left_button hide-on-med-and-down">
+                    <i class="material-icons">chevron_left</i>
+                </button>
+                <button onclick="moveItem({{ card.id }}, 'left')" id="card_{{ card.id }}_up_button" class="card_button card_up_button hide-on-large-only">
+                    <i class="material-icons">keyboard_arrow_up</i>
+                </button>
+                <button onclick="moveItem({{ card.id }}, 'right')" id="card_{{ card.id }}_right_button" class="card_right_button card_button hide-on-med-and-down">
+                    <i class="material-icons">chevron_right</i>
+                </button>
+                <button onclick="moveItem({{ card.id }}, 'right')" id="card_{{ card.id }}_down_button" class="card_button card_down_button hide-on-large-only">
+                    <i class="material-icons">keyboard_arrow_down</i>
+                </button>
+                <div onclick="deleteItem({{ card.id }})" id="card_{{ card.id }}_close_button" class="card_button card_close_button">&times;</div>
+                <div id="card_{{ card.id }}_progress" class="progress"> <div class="indeterminate"></div></div>
+        </div>
+        {% endfor %}
+        <div class="divider hide-on-large-only"></div>
+    </div>
+    {% endfor %}
+    <div id="clear" style="clear:both;"></div>
+</div>
+<div class="divider"></div>
+<div class="fixed-action-btn" style="bottom: 45px; right: 24px;">
+    <a class="btn-floating btn-large red btn modal-trigger" href="#newItem">
+        <i class="large material-icons">add</i>
+    </a>
+</div>
+
+<div id="newItem" class="modal">
+    <div class="modal-content">
+        <h4>Add a new item</h4>
+        <form method="post" action="">
+            {{ formset.management_form }}
+            {% csrf_token %}
+            <table>
+                {% for form in formset %}
+                {{ form }}
+                {% endfor %}
+            </table>
+            <div class="modal-footer">
+                <button type="submit" value="Submit Item" class="btn waves-effect waves-light modal-action modal-close"/>Submit Item
+                    <i class="material-icons right">done</i>
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<br/>
+{% endblock %}
