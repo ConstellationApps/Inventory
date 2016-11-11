@@ -1,0 +1,12 @@
+{% extends "base.html" %}
+{% block title %}Orderboard | Create Board{% endblock %}
+{% block heading %}Orderboard | Create Board{% endblock %}
+{% block content %}
+<form method="POST" action="../api/v1/edit-board">
+  {% csrf_token %}
+  {{ form.name }}
+  {{ form.desc }}
+  {{ form.active }}
+  <button type="submit">Update Board</button>
+</form>
+{% endblock %}

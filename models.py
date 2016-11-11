@@ -1,6 +1,6 @@
 from django.db import models
 
-class Item(models.Model):
+class Card(models.Model):
     name = models.CharField(max_length=128)
     quantity = models.IntegerField(default=1)
     notes = models.TextField()
@@ -11,9 +11,9 @@ class Item(models.Model):
 class Board(models.Model):
     name = models.CharField(max_length=128)
     desc = models.TextField()
-    active = models.BooleanField(default=False)
+    active = models.BooleanField(default=True)
     
 class Stage(models.Model):
     name = models.CharField(max_length=128)
     index = models.IntegerField()
-    active = models.BooleanField(default=False)
+    archived = models.BooleanField(default=False)
