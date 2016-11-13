@@ -49,8 +49,9 @@ urlpatterns = [
 # API Routes related to Stage Operations
 # -----------------------------------------------------------------------------
 
+    url(r'^api/v1/stage/list$', views.api_v1_stage_list),
     url(r'^api/v1/stage/create$', views.api_v1_stage_create),
     url(r'^api/v1/stage/([\d]*)/archive$', views.api_v1_stage_archive),
     url(r'^api/v1/stage/([\d]*)/unarchive$', views.api_v1_stage_unarchive),
-
+    
 ]

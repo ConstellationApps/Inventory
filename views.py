@@ -183,6 +183,13 @@ def api_v1_card_unarchive(request, cardID):
 # API Functions related to Stage Operations
 # -----------------------------------------------------------------------------
 
+def api_v1_stage_list(request):
+    '''List all stages, can be filtered by the client, will return a list
+    of all stages, including stages that the client is not authorized to
+    use.'''
+    stages = serializers.serialize('json', Stage.objects.all())
+    return HttpResponse(stages)
+
 def api_v1_stage_create(request):
     '''Creates a new stage from POST data.  Takes in a CSRF token with the
     data as well as stage name, quantity, description, board reference, and
