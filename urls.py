@@ -28,30 +28,43 @@ urlpatterns = [
 # API Routes related to Board Operations
 # -----------------------------------------------------------------------------
 
-    url(r'^api/v1/board/list$', views.api_v1_board_list),
-    url(r'^api/v1/board/create$', views.api_v1_board_create),
-    url(r'^api/v1/board/([\d]*)/deactivate$', views.api_v1_board_deactivate),
-    url(r'^api/v1/board/([\d]*)/activate$', views.api_v1_board_activate),
+    url(r'^api/v1/board/list$', views.api_v1_board_list,
+        name="api_v1_board_list"),
+    url(r'^api/v1/board/create$', views.api_v1_board_create,
+        name="api_v1_board_create"),
+    url(r'^api/v1/board/([\d]*)/deactivate$', views.api_v1_board_deactivate,
+        name="api_v1_board_deactivate"),
+    url(r'^api/v1/board/([\d]*)/activate$', views.api_v1_board_activate,
+        name="api_v1_board_activate"),
     url(r'^api/v1/board/([\d]*)/active-cards$',
-        views.api_v1_board_active_cards),
+        views.api_v1_board_active_cards,
+        name="api_v1_board_active_cards"),
     url(r'^api/v1/board/([\d]*)/archived-cards$',
-        views.api_v1_board_archived_cards),
+        views.api_v1_board_archived_cards,
+        name="api_v1_board_archived_cards"),
 
 # -----------------------------------------------------------------------------
 # API Routes related to Card Operations
 # -----------------------------------------------------------------------------
 
-    url(r'^api/v1/card/create$', views.api_v1_card_create),
-    url(r'^api/v1/card/([\d]*)/archive$', views.api_v1_card_archive),
-    url(r'^api/v1/card/([\d]*)/unarchive$', views.api_v1_card_unarchive),
+    url(r'^api/v1/card/create$', views.api_v1_card_create,
+        name="api_v1_card_create"),
+    url(r'^api/v1/card/([\d]*)/archive$', views.api_v1_card_archive,
+        name="api_v1_card_archive"),
+    url(r'^api/v1/card/([\d]*)/unarchive$', views.api_v1_card_unarchive,
+        name="api_v1_card_unarchive"),
 
 # -----------------------------------------------------------------------------
 # API Routes related to Stage Operations
 # -----------------------------------------------------------------------------
 
-    url(r'^api/v1/stage/list$', views.api_v1_stage_list),
-    url(r'^api/v1/stage/create$', views.api_v1_stage_create),
-    url(r'^api/v1/stage/([\d]*)/archive$', views.api_v1_stage_archive),
-    url(r'^api/v1/stage/([\d]*)/unarchive$', views.api_v1_stage_unarchive),
+    url(r'^api/v1/stage/list$', views.api_v1_stage_list,
+        name="api_v1_stage_list"),
+    url(r'^api/v1/stage/create$', views.api_v1_stage_create,
+        name="api_v1_stage_create"),
+    url(r'^api/v1/stage/([\d]*)/archive$', views.api_v1_stage_archive,
+        name="api_v1_stage_create"),
+    url(r'^api/v1/stage/([\d]*)/unarchive$', views.api_v1_stage_unarchive,
+        name="api_v1_stage_unarchive"),
     
 ]
