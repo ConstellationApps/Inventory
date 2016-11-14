@@ -181,47 +181,51 @@ def api_v1_card_unarchive(request, cardID):
     return HttpResponse(json.dumps(retVal))
 
 def api_v1_card_move_right(request, cardID):
+    '''Move a card to the next stage to the left'''
     stages = list(Stage.objects.filter(archived=False))
     stages.sort(key=lambda x: x.index)
 
     card = get_object_or_404(Card, pk=cardID)
     stageID = stages.index(card.stage)
 
-    retVal={}
+    retVal = {}
     try:
         card.stage = stages[stageID + 1]
         card.save()
         retVal['status'] = "success"
-        retVal['msg'] = "Card moved successfully"
+        retVal['msg'] = "Card unarchived successfully"
+        retVal['stageName'] = card.stage.name
+        retVal['stageID'] = card.stage.pk
     except:
         retVal['status'] = "fail"
-        retVal['msg'] = "Could not move card"
+        retVal['msg'] = "Could not unarchive card"
 
     return HttpResponse(json.dumps(retVal))
     
-
 def api_v1_card_move_left(request, cardID):
+    '''Move a card to the next stage to the left'''
     stages = list(Stage.objects.filter(archived=False))
     stages.sort(key=lambda x: x.index)
 
     card = get_object_or_404(Card, pk=cardID)
     stageID = stages.index(card.stage)
 
-    retVal={}
+    retVal = {}
     try:
         if stageID - 1 < 0:
             raise IndexError
         card.stage = stages[stageID - 1]
         card.save()
         retVal['status'] = "success"
-        retVal['msg'] = "Card moved successfully"
+        retVal['msg'] = "Card unarchived successfully"
+        retVal['stageName'] = card.stage.name
+        retVal['stageID'] = card.stage.pk
     except:
         retVal['status'] = "fail"
-        retVal['msg'] = "Could not move card"
+        retVal['msg'] = "Could not unarchive card"
 
     return HttpResponse(json.dumps(retVal))
-
-
+        
 # -----------------------------------------------------------------------------
 # API Functions related to Stage Operations
 # -----------------------------------------------------------------------------
