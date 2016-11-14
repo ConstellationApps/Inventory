@@ -11,7 +11,7 @@ class CardForm(ModelForm):
 class BoardForm(ModelForm):
     class Meta:
         model = Board
-        fields = ['name', 'desc', 'active']g
+        fields = ['name', 'desc', 'active']
 
 class StageForm(ModelForm):
     class Meta:

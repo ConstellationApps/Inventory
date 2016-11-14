@@ -1,9 +1,11 @@
 from django.forms import formset_factory
 from django.shortcuts import render
+from django.shortcuts import get_object_or_404
 from django.http import HttpResponse
 from django.core import serializers
 
 import json
+import operator
 
 from .forms import CardForm
 from .forms import StageForm
@@ -175,6 +177,47 @@ def api_v1_card_unarchive(request, cardID):
     except:
         retVal['status'] = "fail"
         retVal['msg'] = "Could not unarchive card"
+
+    return HttpResponse(json.dumps(retVal))
+
+def api_v1_card_move_right(request, cardID):
+    stages = list(Stage.objects.filter(archived=False))
+    stages.sort(key=lambda x: x.index)
+
+    card = get_object_or_404(Card, pk=cardID)
+    stageID = stages.index(card.stage)
+
+    retVal={}
+    try:
+        card.stage = stages[stageID + 1]
+        card.save()
+        retVal['status'] = "success"
+        retVal['msg'] = "Card moved successfully"
+    except:
+        retVal['status'] = "fail"
+        retVal['msg'] = "Could not move card"
+
+    return HttpResponse(json.dumps(retVal))
+    
+
+def api_v1_card_move_left(request, cardID):
+    stages = list(Stage.objects.filter(archived=False))
+    stages.sort(key=lambda x: x.index)
+
+    card = get_object_or_404(Card, pk=cardID)
+    stageID = stages.index(card.stage)
+
+    retVal={}
+    try:
+        if stageID - 1 < 0:
+            raise IndexError
+        card.stage = stages[stageID - 1]
+        card.save()
+        retVal['status'] = "success"
+        retVal['msg'] = "Card moved successfully"
+    except:
+        retVal['status'] = "fail"
+        retVal['msg'] = "Could not move card"
 
     return HttpResponse(json.dumps(retVal))
 

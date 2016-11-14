@@ -53,7 +53,11 @@ urlpatterns = [
         name="api_v1_card_archive"),
     url(r'^api/v1/card/([\d]*)/unarchive$', views.api_v1_card_unarchive,
         name="api_v1_card_unarchive"),
-
+    url(r'^api/v1/card/([\d]*)/move-right$', views.api_v1_card_move_right,
+        name="api_v1_card_move_right"),
+    url(r'^api/v1/card/([\d]*)/move-left$', views.api_v1_card_move_left,
+        name="api_v1_card_move_left"),
+    
 # -----------------------------------------------------------------------------
 # API Routes related to Stage Operations
 # -----------------------------------------------------------------------------
