@@ -140,8 +140,7 @@ def api_v1_card_create(request):
         newCard.archived = False
         try:
             newCard.save()
-            retVal['status'] = "success"
-            retVal['msg'] = "Card created successfully"
+            return HttpResponse(serializers.serialize('json', newCard))
         except:
             retVal['status'] = "fail"
             retVal['msg'] = "Could not create card"
@@ -201,7 +200,7 @@ def api_v1_card_move_right(request, cardID):
         retVal['msg'] = "Could not unarchive card"
 
     return HttpResponse(json.dumps(retVal))
-    
+
 def api_v1_card_move_left(request, cardID):
     '''Move a card to the next stage to the left'''
     stages = list(Stage.objects.filter(archived=False))
@@ -225,7 +224,7 @@ def api_v1_card_move_left(request, cardID):
         retVal['msg'] = "Could not unarchive card"
 
     return HttpResponse(json.dumps(retVal))
-        
+
 # -----------------------------------------------------------------------------
 # API Functions related to Stage Operations
 # -----------------------------------------------------------------------------
