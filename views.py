@@ -140,7 +140,7 @@ def api_v1_card_create(request):
         newCard.archived = False
         try:
             newCard.save()
-            return HttpResponse(serializers.serialize('json', newCard))
+            return HttpResponse(serializers.serialize('json', [newCard,]))
         except:
             retVal['status'] = "fail"
             retVal['msg'] = "Could not create card"
