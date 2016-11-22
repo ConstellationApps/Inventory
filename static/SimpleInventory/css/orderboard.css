@@ -1,8 +1,9 @@
-h4 {
+.stage-name {
     text-align: center;
+    text-shadow: 0px 0px 8px #ffffff;
 }
 
-#boards {
+.board {
     margin-left: auto;
     margin-right: auto;
     margin-top: 2%;
@@ -20,8 +21,15 @@ h4 {
     text-align: center;
 }
 
+.inventory-item {
+    margin-bottom: 10px;
+    min-height: 100px;
+    padding: 5px 15px;
+    width: auto;
+}
+
 .card_name {
-    font-size: 1.2rem;
+    font-size: 16px;
     font-weight: bold;
 }
 
@@ -39,7 +47,8 @@ h4 {
 }
 
 .card_button:hover {
-    background-color: rgba(0,0,0,0.2);
+    background: #366fcc;
+    background: rgba(0,0,0,0.2);
 }
 
 .card_right_button {
@@ -74,10 +83,10 @@ h4 {
     top: 0;
 }
 
-.stage:first-child .card-panel .card_left_button,
-.stage:first-child .card-panel .card_up_button,
-.stage:nth-last-child(2) .card-panel .card_right_button,
-.stage:nth-last-child(2) .card-panel .card_down_button {
+.stage:first-child .mdl-card__supporting-text .card_left_button,
+.stage:first-child .mdl-card__supporting-text .card_up_button,
+.stage:nth-last-child(2) .mdl-card__supporting-text .card_right_button,
+.stage:nth-last-child(2) .mdl-card__supporting-text .card_down_button {
     display: none;
 }
 
@@ -90,25 +99,26 @@ h4 {
     position: absolute;
 }
 
-textarea {
-    background-color: transparent!important;
-    border-bottom: 1px solid #9e9e9e;
-    border: none;
-    min-height:50px;
-    overflow: hidden;
-    resize: vertical;
+dialog {
+    min-width: 50%;
 }
 
-textarea:focus {
-    border-bottom: 1px solid #26a69a;
-    border: none;
-    box-shadow: 0 1px 0 0 #26a69a;
+dialog + .backdrop {
+    background: grey;
+    background: rgba(0,0,0,.5);
 }
 
-td {
-    padding: 0;
+.stage:first-child hr {
+    display: none;
 }
 
-input {
-    height: 2rem!important;
+.fixed-action-btn {
+    bottom: 45px;
+    position: fixed;
+    right: 45px;
+    z-index: 99;
+}
+
+.waiting-spinner {
+    margin: auto;
 }

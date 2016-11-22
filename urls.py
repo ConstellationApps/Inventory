@@ -8,12 +8,14 @@ urlpatterns = [
 # =============================================================================
 
     url(r'^view/list$', views.view_list),
+    url(r'^view/board/([\d]*)$', views.view_board),
 
 # =============================================================================
 # Management Routes
 # =============================================================================
 
     url(r'^manage/create-board$', views.manage_create_board),
+    url(r'^manage/stages$', views.manage_stages),
 
 # =============================================================================
 # API Routes for the v1 API
@@ -57,7 +59,7 @@ urlpatterns = [
         name="api_v1_card_move_right"),
     url(r'^api/v1/card/([\d]*)/move-left$', views.api_v1_card_move_left,
         name="api_v1_card_move_left"),
-    
+
 # -----------------------------------------------------------------------------
 # API Routes related to Stage Operations
 # -----------------------------------------------------------------------------
@@ -74,5 +76,4 @@ urlpatterns = [
         name="api_v1_stage_move_left"),
     url(r'^api/v1/stage/([\d]*)/move-right$', views.api_v1_stage_move_right,
         name="api_v1_stage_move_right"),
-    
 ]

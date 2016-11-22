@@ -7,6 +7,8 @@ from django.core import serializers
 import json
 import operator
 
+from SimpleBase.models import GlobalTemplateSettings
+
 from .forms import CardForm
 from .forms import StageForm
 from .forms import BoardForm
@@ -23,6 +25,19 @@ from .models import Board
 def view_list(request):
     return HttpResponse("Rendered list of boards")
 
+def view_board(request, board_id):
+    '''Return the base template that will call the API to display the
+    entire board with all the cards'''
+    template_settings_object = GlobalTemplateSettings(allowBackground=False)
+    template_settings = template_settings_object.settings_dict()
+    form = CardForm()
+
+    return render(request, 'SimpleInventory/board.html', {
+        'form': form,
+        'id': board_id,
+        'template_settings': template_settings,
+    })
+
 # =============================================================================
 # Management Functions
 # =============================================================================
@@ -30,6 +45,12 @@ def view_list(request):
 def manage_create_board(request):
     boardForm = BoardForm()
     return render(request, "create-board.html", {'form':boardForm})
+
+def manage_stages(request):
+    stageForm = StageForm()
+    return render(request, "SimpleInventory/manage-stages.html", {
+        'form': stageForm
+    })
 
 # =============================================================================
 # API Functions for the v1 API

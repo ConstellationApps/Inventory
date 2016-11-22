@@ -1,0 +1,12 @@
+{% extends "SimpleBase/base.html" %}
+{% block title %}Orderboard | Create Stage{% endblock %}
+{% block heading %}Orderboard | Create Stage{% endblock %}
+{% block content %}
+<form method="POST" action="../api/v1/stage/create">
+  {% csrf_token %}
+  {{ form.name }}
+  {{ form.index }}
+  {{ form.archived }}
+  <button type="submit">Create Stage</button>
+</form>
+{% endblock %}
