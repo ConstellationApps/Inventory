@@ -15,9 +15,15 @@ class CardForm(ModelForm):
         fields = ['name', 'quantity', 'notes', 'stage', 'board']
 
 class BoardForm(ModelForm):
+    def __init__(self, *args, **kwargs):
+        super(BoardForm, self).__init__(*args, **kwargs)
+        for field_name, field in self.fields.items():
+            field.widget.attrs['class'] = 'mdl-textfield__input'
+            field.widget.attrs['rows'] = 3
+
     class Meta:
         model = Board
-        fields = ['name', 'desc', 'active']
+        fields = ['name', 'desc', 'archived']
 
 class StageForm(ModelForm):
     class Meta:

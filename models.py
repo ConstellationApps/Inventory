@@ -7,12 +7,12 @@ class Card(models.Model):
     stage = models.ForeignKey('Stage', blank=True, null=True)
     board = models.ForeignKey('Board', blank=True, null=True)
     archived = models.BooleanField(default=False)
-    
+
 class Board(models.Model):
     name = models.CharField(max_length=128)
     desc = models.TextField()
-    active = models.BooleanField(default=True)
-    
+    archived = models.BooleanField(default=False)
+
 class Stage(models.Model):
     name = models.CharField(max_length=128)
     index = models.IntegerField()

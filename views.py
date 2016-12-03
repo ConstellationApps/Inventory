@@ -53,9 +53,15 @@ def view_board_archive(request, board_id):
 # Management Functions
 # =============================================================================
 
-def manage_create_board(request):
+def manage_boards(request):
+    template_settings_object = GlobalTemplateSettings(allowBackground=False)
+    template_settings = template_settings_object.settings_dict()
     boardForm = BoardForm()
-    return render(request, "create-board.html", {'form':boardForm})
+
+    return render(request, 'SimpleInventory/manage-boards.html', {
+        'form': boardForm,
+        'template_settings': template_settings,
+    })
 
 def manage_stages(request):
     stageForm = StageForm()
@@ -94,8 +100,7 @@ def api_v1_board_create(request):
         newBoard.desc = boardForm.cleaned_data['desc']
         try:
             newBoard.save()
-            retVal['status'] = "success"
-            retVal['msg'] = "Board created successfully"
+            return HttpResponse(serializers.serialize('json', [newBoard,]))
         except:
             retVal['status'] = "fail"
             retVal['msg'] = "Could not create board"
@@ -104,33 +109,33 @@ def api_v1_board_create(request):
         retVal['msg'] = "Invalid form data"
     return HttpResponse(json.dumps(retVal))
 
-def api_v1_board_deactivate(request, boardID):
-    '''deactivates a board, returns status object'''
+def api_v1_board_archive(request, boardID):
+    '''archives a board, returns status object'''
     board = Board.objects.get(pk=boardID)
-    board.active = False
+    board.archived = True
     retVal = {}
     try:
         board.save()
         retVal['status'] = "success"
-        retVal['msg'] = "Board deactivated successfully"
+        retVal['msg'] = "Board archived successfully"
     except:
         retVal['status'] = "fail"
-        retVal['msg'] = "Could not deactivate board"
+        retVal['msg'] = "Could not archive board"
 
     return HttpResponse(json.dumps(retVal))
 
-def api_v1_board_activate(request, boardID):
-    '''activates a board, returns status object'''
+def api_v1_board_unarchive(request, boardID):
+    '''unarchives a board, returns status object'''
     board = Board.objects.get(pk=boardID)
-    board.active = True
+    board.archived = False
     retVal = {}
     try:
         board.save()
         retVal['status'] = "success"
-        retVal['msg'] = "Board activated successfully"
+        retVal['msg'] = "Board unarchived successfully"
     except:
         retVal['status'] = "fail"
-        retVal['msg'] = "Could not activate board"
+        retVal['msg'] = "Could not unarchive board"
 
     return HttpResponse(json.dumps(retVal))
 

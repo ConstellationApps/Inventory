@@ -8,14 +8,15 @@ urlpatterns = [
 # =============================================================================
 
     url(r'^view/list$', views.view_list),
-    url(r'^view/board/([\d]*)$', views.view_board),
+    url(r'^view/board/([\d]*)$', views.view_board,
+        name="view_board"),
     url(r'^view/board/([\d]*)/archive$', views.view_board_archive),
 
 # =============================================================================
 # Management Routes
 # =============================================================================
 
-    url(r'^manage/create-board$', views.manage_create_board),
+    url(r'^manage/boards$', views.manage_boards),
     url(r'^manage/stages$', views.manage_stages),
 
 # =============================================================================
@@ -35,10 +36,10 @@ urlpatterns = [
         name="api_v1_board_list"),
     url(r'^api/v1/board/create$', views.api_v1_board_create,
         name="api_v1_board_create"),
-    url(r'^api/v1/board/([\d]*)/deactivate$', views.api_v1_board_deactivate,
-        name="api_v1_board_deactivate"),
-    url(r'^api/v1/board/([\d]*)/activate$', views.api_v1_board_activate,
-        name="api_v1_board_activate"),
+    url(r'^api/v1/board/([\d]*)/archive$', views.api_v1_board_archive,
+        name="api_v1_board_archive"),
+    url(r'^api/v1/board/([\d]*)/unarchive$', views.api_v1_board_unarchive,
+        name="api_v1_board_unarchive"),
     url(r'^api/v1/board/([\d]*)/active-cards$',
         views.api_v1_board_active_cards,
         name="api_v1_board_active_cards"),
