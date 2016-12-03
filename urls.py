@@ -9,6 +9,7 @@ urlpatterns = [
 
     url(r'^view/list$', views.view_list),
     url(r'^view/board/([\d]*)$', views.view_board),
+    url(r'^view/board/([\d]*)/archive$', views.view_board_archive),
 
 # =============================================================================
 # Management Routes

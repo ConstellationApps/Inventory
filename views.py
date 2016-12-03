@@ -38,6 +38,17 @@ def view_board(request, board_id):
         'template_settings': template_settings,
     })
 
+def view_board_archive(request, board_id):
+    '''Return the base template that will call the API to display the
+    board's archived cards'''
+    template_settings_object = GlobalTemplateSettings(allowBackground=False)
+    template_settings = template_settings_object.settings_dict()
+
+    return render(request, 'SimpleInventory/archive.html', {
+        'id': board_id,
+        'template_settings': template_settings,
+    })
+
 # =============================================================================
 # Management Functions
 # =============================================================================
