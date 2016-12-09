@@ -288,3 +288,30 @@ def api_v1_stage_unarchive(request, stageID):
         retVal['msg'] = "Could not unarchive stage"
 
     return HttpResponse(json.dumps(retVal))
+
+def api_v1_stage_move_left(request, stageID):
+    '''Move a stage to the left'''
+    stageCurrent = Stage.objects.get(pk=stageID)
+    if stageCurrent.index > 0:
+        stageLeft = Stage.objects.get(index=stageCurrent.index-1)
+
+        stageLeft.index = stageLeft.index + 1
+        stageCurrent.index = stageCurrent.index - 1
+
+        stageLeft.save()
+        stageCurrent.save()
+        
+def api_v1_stage_move_right(request, stageID):
+    '''Move a stage to the right'''
+    stageCurrent = Stage.objects.get(pk=stageID)
+    try:
+        stageRight = Stage.objects.get(index=stageCurrent.index+1)
+
+        stageRight.index = stageRight.index - 1
+        stageCurrent.index = stageCurrent.index + 1
+
+        stageRight.save()
+        stageCurrent.save()
+        
+    except DoesNotExist as e:
+        pass
