@@ -127,3 +127,27 @@ dialog + .backdrop {
     margin-top: 40px;
     margin-bottom:80px;
 }
+
+.mdl-list .mdl-list__item:last-child .bubble_down {
+    display: none;
+}
+
+.mdl-list .mdl-list__item:last-child .bubble_up {
+    margin-right: 1.2em;
+}
+
+.mdl-list .mdl-list__item:first-child .bubble_up {
+    display: none;
+}
+
+.stage-archived--false .unarchive-stage {
+    display: none;
+}
+
+.stage-archived--true, .stage-archived--true a {
+    color: #999999;
+}
+
+.stage-archived--true .archive-stage {
+    display: none;
+}

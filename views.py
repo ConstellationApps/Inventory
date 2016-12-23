@@ -64,9 +64,12 @@ def manage_boards(request):
     })
 
 def manage_stages(request):
+    template_settings_object = GlobalTemplateSettings(allowBackground=False)
+    template_settings = template_settings_object.settings_dict()
     stageForm = StageForm()
     return render(request, "SimpleInventory/manage-stages.html", {
-        'form': stageForm
+        'form': stageForm,
+        'template_settings': template_settings,
     })
 
 # =============================================================================
@@ -282,12 +285,11 @@ def api_v1_stage_create(request):
     if request.POST and stageForm.is_valid():
         newStage = Stage()
         newStage.name = stageForm.cleaned_data['name']
-        newStage.index = stageForm.cleaned_data['index']
+        newStage.index = -1   # The model save function will append the stage
         newStage.archived = False
         try:
             newStage.save()
-            retVal['status'] = "success"
-            retVal['msg'] = "Stage created successfully"
+            return HttpResponse(serializers.serialize('json', [newStage,]))
         except:
             retVal['status'] = "fail"
             retVal['msg'] = "Could not create stage"
@@ -329,26 +331,27 @@ def api_v1_stage_unarchive(request, stageID):
 def api_v1_stage_move_left(request, stageID):
     '''Move a stage to the left'''
     stageCurrent = Stage.objects.get(pk=stageID)
+    retVal = {}
     if stageCurrent.index > 0:
         stageLeft = Stage.objects.get(index=stageCurrent.index-1)
+        stageCurrent.swap(stageLeft)
+        retVal['status'] = "success"
+        retVal['msg'] = "Stages swapped successfully"
+    else:
+        retVal['status'] = "fail"
+        retVal['msg'] = "No left stage!"
+    return HttpResponse(json.dumps(retVal))
 
-        stageLeft.index = stageLeft.index + 1
-        stageCurrent.index = stageCurrent.index - 1
-
-        stageLeft.save()
-        stageCurrent.save()
-        
 def api_v1_stage_move_right(request, stageID):
     '''Move a stage to the right'''
     stageCurrent = Stage.objects.get(pk=stageID)
+    retVal = {}
     try:
         stageRight = Stage.objects.get(index=stageCurrent.index+1)
-
-        stageRight.index = stageRight.index - 1
-        stageCurrent.index = stageCurrent.index + 1
-
-        stageRight.save()
-        stageCurrent.save()
-        
-    except DoesNotExist as e:
-        pass
+        stageCurrent.swap(stageRight)
+        retVal['status'] = "success"
+        retVal['msg'] = "Stages swapped successfully"
+    except Stage.DoesNotExist:
+        retVal['status'] = "fail"
+        retVal['msg'] = "No left stage!"
+    return HttpResponse(json.dumps(retVal))

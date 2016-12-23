@@ -71,7 +71,7 @@ urlpatterns = [
     url(r'^api/v1/stage/create$', views.api_v1_stage_create,
         name="api_v1_stage_create"),
     url(r'^api/v1/stage/([\d]*)/archive$', views.api_v1_stage_archive,
-        name="api_v1_stage_create"),
+        name="api_v1_stage_archive"),
     url(r'^api/v1/stage/([\d]*)/unarchive$', views.api_v1_stage_unarchive,
         name="api_v1_stage_unarchive"),
     url(r'^api/v1/stage/([\d]*)/move-left$', views.api_v1_stage_move_left,

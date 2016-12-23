@@ -26,6 +26,11 @@ class BoardForm(ModelForm):
         fields = ['name', 'desc', 'archived']
 
 class StageForm(ModelForm):
+    def __init__(self, *args, **kwargs):
+        super(StageForm, self).__init__(*args, **kwargs)
+        for field_name, field in self.fields.items():
+            field.widget.attrs['class'] = 'mdl-textfield__input'
+
     class Meta:
         model = Stage
-        fields = ['name', 'index', 'archived']
+        fields = ['name', 'archived']
