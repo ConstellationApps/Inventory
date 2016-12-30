@@ -23,7 +23,14 @@ from .models import Board
 # =============================================================================
 
 def view_list(request):
-    return HttpResponse("Rendered list of boards")
+    '''Return the base template that will call the API to display
+    a list of boards'''
+    template_settings_object = GlobalTemplateSettings(allowBackground=False)
+    template_settings = template_settings_object.settings_dict()
+
+    return render(request, 'SimpleInventory/view-list.html', {
+        'template_settings': template_settings,
+    })
 
 def view_board(request, board_id):
     '''Return the base template that will call the API to display the
