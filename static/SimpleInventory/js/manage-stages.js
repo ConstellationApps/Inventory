@@ -6,6 +6,8 @@
 /* Global board state */
 var stages_data;
 
+var message = document.querySelector('#message-toast');
+
 /* Template for Handlebars to execute */
 var source = $('#handlebars-stages').html();
 
@@ -27,7 +29,14 @@ function getstage_data() {
       };
     }
     renderTemplate(stages_data);
-  });
+  })
+    .fail(function(jqXHR) {
+      if (jqXHR.status == 404) {
+        message.MaterialSnackbar.showSnackbar({message: jqXHR.responseText});
+      } else {
+        message.MaterialSnackbar.showSnackbar({message: 'An error occured.'});
+      }
+    });
 }
 
 /* render compiled handlebars template */
@@ -48,7 +57,14 @@ function bubbleUp(id) {
     stages_data.stages[stage_index-1] = stages_data.stages[stage_index];
     stages_data.stages[stage_index] = otherStage;
     renderTemplate(stages_data);
-  });
+  })
+    .fail(function(jqXHR) {
+      if (jqXHR.status == 500 || jqXHR.status == 400) {
+        message.MaterialSnackbar.showSnackbar({message: jqXHR.responseText});
+      } else {
+        message.MaterialSnackbar.showSnackbar({message: 'An error occured.'});
+      }
+    });
 }
 
 /* Bubble a board down */
@@ -61,7 +77,14 @@ function bubbleDown(id) {
     stages_data.stages[stage_index+1] = stages_data.stages[stage_index];
     stages_data.stages[stage_index] = otherStage;
     renderTemplate(stages_data);
-  });
+  })
+    .fail(function(jqXHR) {
+      if (jqXHR.status == 500 || jqXHR.status == 400) {
+        message.MaterialSnackbar.showSnackbar({message: jqXHR.responseText});
+      } else {
+        message.MaterialSnackbar.showSnackbar({message: 'An error occured.'});
+      }
+    });
 }
 
 /* Unarchive a stage */
@@ -72,7 +95,14 @@ function unarchiveStage(id) {
     });
     stages_data.stages[stage_index].archived = false;
     renderTemplate(stages_data);
-  });
+  })
+    .fail(function(jqXHR) {
+      if (jqXHR.status == 500) {
+        message.MaterialSnackbar.showSnackbar({message: jqXHR.responseText});
+      } else {
+        message.MaterialSnackbar.showSnackbar({message: 'An error occured.'});
+      }
+    });
 }
 
 /* Archive a stage */
@@ -83,7 +113,14 @@ function archiveStage(id) {
     });
     stages_data.stages[stage_index].archived = true;
     renderTemplate(stages_data);
-  });
+  })
+    .fail(function(jqXHR) {
+      if (jqXHR.status == 500) {
+        message.MaterialSnackbar.showSnackbar({message: jqXHR.responseText});
+      } else {
+        message.MaterialSnackbar.showSnackbar({message: 'An error occured.'});
+      }
+    });
 }
 
 $('#newStageForm').on('submit', addItem);
@@ -98,5 +135,12 @@ function addItem(event) {
     stage.archived = response.fields.archived;
     stages_data.stages[response.fields.index] = stage;
     renderTemplate(stages_data);
-  }, 'json');
+  }, 'json')
+    .fail(function(jqXHR) {
+      if (jqXHR.status == 400 || jqXHR.status == 500) {
+        message.MaterialSnackbar.showSnackbar({message: jqXHR.responseText});
+      } else {
+        message.MaterialSnackbar.showSnackbar({message: 'An error occured.'});
+      }
+    });
 }

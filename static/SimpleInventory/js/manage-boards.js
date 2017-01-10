@@ -5,6 +5,8 @@
 /* Global board state */
 var boards_data;
 
+var message = document.querySelector('#message-toast');
+
 /* Template for Handlebars to execute */
 var source = $('#handlebars-board').html();
 
@@ -32,7 +34,14 @@ function getboard_data() {
       });
     }
     renderTemplate(boards_data);
-  });
+  })
+    .fail(function(jqXHR) {
+      if (jqXHR.status == 404) {
+        message.MaterialSnackbar.showSnackbar({message: jqXHR.responseText});
+      } else {
+        message.MaterialSnackbar.showSnackbar({message: 'An error occured.'});
+      }
+    });
 }
 
 /* render compiled handlebars template */
@@ -52,7 +61,14 @@ function archiveBoard(id) {
     boards_data.inactive_boards.push(boards_data.active_boards[board_index]);
     boards_data.active_boards.splice(board_index, 1);
     renderTemplate(boards_data);
-  });
+  })
+    .fail(function(jqXHR) {
+      if (jqXHR.status == 500) {
+        message.MaterialSnackbar.showSnackbar({message: jqXHR.responseText});
+      } else {
+        message.MaterialSnackbar.showSnackbar({message: 'An error occured.'});
+      }
+    });
 }
 
 /* unarchive a board */
@@ -64,7 +80,14 @@ function unarchiveBoard(id) {
     boards_data.active_boards.push(boards_data.inactive_boards[board_index]);
     boards_data.inactive_boards.splice(board_index, 1);
     renderTemplate(boards_data);
-  });
+  })
+    .fail(function(jqXHR) {
+      if (jqXHR.status == 500) {
+        message.MaterialSnackbar.showSnackbar({message: jqXHR.responseText});
+      } else {
+        message.MaterialSnackbar.showSnackbar({message: 'An error occured.'});
+      }
+    });
 }
 
 $('#newBoardForm').on('submit', addItem);
@@ -79,5 +102,12 @@ function addItem(event) {
     board.url = url_view_board.replace(0, response.pk);
     boards_data.active_boards.push(board);
     renderTemplate(boards_data);
-  }, 'json');
+  }, 'json')
+    .fail(function(jqXHR) {
+      if (jqXHR.status == 400 || jqXHR.status == 500) {
+        message.MaterialSnackbar.showSnackbar({message: jqXHR.responseText});
+      } else {
+        message.MaterialSnackbar.showSnackbar({message: 'An error occured.'});
+      }
+    });
 }

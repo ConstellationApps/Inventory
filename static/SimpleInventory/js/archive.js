@@ -2,6 +2,8 @@
 url_api_v1_card_unarchive */
 /* exported restoreItem */
 
+var message = document.querySelector('#message-toast');
+
 /* Global board state */
 var archive_data;
 
@@ -28,7 +30,14 @@ function getboard_data() {
       });
     }
     renderTemplate(archive_data);
-  });
+  })
+    .fail(function(jqXHR) {
+      if (jqXHR.status == 404) {
+        message.MaterialSnackbar.showSnackbar({message: jqXHR.responseText});
+      } else {
+        message.MaterialSnackbar.showSnackbar({message: 'An error occured.'});
+      }
+    });
 }
 
 /* render compiled handlebars template */
@@ -50,5 +59,12 @@ function restoreItem(id) {
     $('#card_' + id).effect('scale', {percent: 0}, 100, function(){
       renderTemplate(archive_data);
     });
-  });
+  })
+    .fail(function(jqXHR) {
+      if (jqXHR.status == 500) {
+        message.MaterialSnackbar.showSnackbar({message: jqXHR.responseText});
+      } else {
+        message.MaterialSnackbar.showSnackbar({message: 'An error occured.'});
+      }
+    });
 }

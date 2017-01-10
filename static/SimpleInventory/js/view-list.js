@@ -3,6 +3,8 @@
 /* Global board state */
 var boards_data;
 
+var message = document.querySelector('#message-toast');
+
 /* Template for Handlebars to execute */
 var source = $('#handlebars-board').html();
 
@@ -27,7 +29,14 @@ function getboard_data() {
       }
     }
     renderTemplate(boards_data);
-  });
+  })
+    .fail(function(jqXHR) {
+      if (jqXHR.status == 404) {
+        message.MaterialSnackbar.showSnackbar({message: jqXHR.responseText});
+      } else {
+        message.MaterialSnackbar.showSnackbar({message: 'An error occured.'});
+      }
+    });
 }
 
 /* render compiled handlebars template */

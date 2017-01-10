@@ -4,8 +4,8 @@ url_api_v1_card_move_right url_api_v1_card_archive stage_form_id
 stage_board_id dialogPolyfill */
 /* exported moveItem deleteItem restoreItem addItem */
 
-/* Various functions may need to open and close the dialog */
 var dialog = document.querySelector('#newItem');
+var message = document.querySelector('#message-toast');
 
 /* Global board state */
 var board_data;
@@ -72,8 +72,23 @@ function getboard_data() {
         card_map.set(cards[i].pk, stage_index);
       }
       renderTemplate(board_data);
+    })
+      .fail(function(jqXHR) {
+        if (jqXHR.status == 404) {
+          message.MaterialSnackbar.showSnackbar({message: jqXHR.responseText});
+        } else {
+          message.MaterialSnackbar.showSnackbar({message: 'An error occured.'});
+        }
+      });
+  })
+    .fail(function(jqXHR) {
+      $('#showNewItem').hide();
+      if (jqXHR.status == 404) {
+        message.MaterialSnackbar.showSnackbar({message: jqXHR.responseText});
+      } else {
+        message.MaterialSnackbar.showSnackbar({message: 'An error occured.'});
+      }
     });
-  });
 }
 
 /* render compiled handlebars template */
@@ -108,7 +123,14 @@ function moveItem(id, direction) {
     board_data.stages[card_stage].cards.splice(card_index, 1);
     card_map.set(id, index);
     renderTemplate(board_data);
-  });
+  })
+    .fail(function(jqXHR) {
+      if (jqXHR.status == 500) {
+        message.MaterialSnackbar.showSnackbar({message: jqXHR.responseText});
+      } else {
+        message.MaterialSnackbar.showSnackbar({message: 'An error occured.'});
+      }
+    });
 }
 
 /* Remove a card from the board */
@@ -124,26 +146,14 @@ function deleteItem(id) {
     $('#card_' + id).effect('scale', {percent: 0}, 100, function(){
       renderTemplate(board_data);
     });
-  });
-}
-
-/* Restore an item from the archive */
-function restoreItem(id) {
-  $('#card_' + id + '_progress').show();
-  var xhttp = new XMLHttpRequest();
-  xhttp.onreadystatechange = function() {
-    if (this.readyState == 4) {
-      if (this.status == 200) {
-        $('#card_' + id).effect('scale', {percent: 0}, 100, function(){
-          $('#card_' + id).parent().remove();
-        } );
+  })
+    .fail(function(jqXHR) {
+      if (jqXHR.status == 500) {
+        message.MaterialSnackbar.showSnackbar({message: jqXHR.responseText});
       } else {
-        alert('There was a problem restoring that card.');
+        message.MaterialSnackbar.showSnackbar({message: 'An error occured.'});
       }
-    }
-  };
-  xhttp.open('GET', '/order/move/' + id + '/left', true);
-  xhttp.send();
+    });
 }
 
 $('#newItemForm').on('submit', addItem);
@@ -161,7 +171,14 @@ function addItem(event) {
     board_data.stages[0].cards.push(card);
     card_map.set(response.pk, 0);
     renderTemplate(board_data);
-  }, 'json');
+  }, 'json')
+    .fail(function(jqXHR) {
+      if (jqXHR.status == 500 || jqXHR.status == 400) {
+        message.MaterialSnackbar.showSnackbar({message: jqXHR.responseText});
+      } else {
+        message.MaterialSnackbar.showSnackbar({message: 'An error occured.'});
+      }
+    });
 }
 
 $('#showNewItem').click(openDialog);
