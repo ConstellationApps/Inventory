@@ -2,6 +2,9 @@ from django.forms import formset_factory
 from django.shortcuts import render
 from django.shortcuts import get_object_or_404
 from django.http import HttpResponse
+from django.http import HttpResponseNotFound
+from django.http import HttpResponseBadRequest
+from django.http import HttpResponseServerError
 from django.core import serializers
 
 import json
@@ -95,15 +98,18 @@ def api_v1_board_list(request):
     '''List all boards, can be filtered by the client, will return a list
     of all boards, including boards that the client is not authorized to
     use.'''
-    boards = serializers.serialize('json', Board.objects.all())
-    return HttpResponse(boards)
+    boardObjects = Board.objects.all()
+    if boardObjects:
+        boards = serializers.serialize('json', boardObjects)
+        return HttpResponse(boards)
+    else:
+        return HttpResponseNotFound("You have no boards at this time")
 
 def api_v1_board_create(request):
     '''Create a board, takes a post with a CSRF token, name, and
     description and returns a json object containing the status which will
     be either 'success' or 'fail' and a friendly message'''
     boardForm = BoardForm(request.POST or None)
-    retVal = {}
     if request.POST and boardForm.is_valid():
         newBoard = Board()
         newBoard.name = boardForm.cleaned_data['name']
@@ -112,60 +118,49 @@ def api_v1_board_create(request):
             newBoard.save()
             return HttpResponse(serializers.serialize('json', [newBoard,]))
         except:
-            retVal['status'] = "fail"
-            retVal['msg'] = "Could not create board"
+            return HttpResponseServerError("Could not save board at this time")
     else:
-        retVal['status'] = "fail"
-        retVal['msg'] = "Invalid form data"
-    return HttpResponse(json.dumps(retVal))
+        return HttpResponseBadRequest("Invalid Form Data!")
 
 def api_v1_board_archive(request, boardID):
     '''archives a board, returns status object'''
     board = Board.objects.get(pk=boardID)
     board.archived = True
-    retVal = {}
     try:
         board.save()
-        retVal['status'] = "success"
-        retVal['msg'] = "Board archived successfully"
+        return HttpResponse("Board Archived")
     except:
-        retVal['status'] = "fail"
-        retVal['msg'] = "Could not archive board"
-
-    return HttpResponse(json.dumps(retVal))
+        return HttpResponseServerError("Board could not be archived at this time")
 
 def api_v1_board_unarchive(request, boardID):
     '''unarchives a board, returns status object'''
     board = Board.objects.get(pk=boardID)
     board.archived = False
-    retVal = {}
     try:
         board.save()
-        retVal['status'] = "success"
-        retVal['msg'] = "Board unarchived successfully"
+        return HttpResponse("Board Un-Archived")
     except:
-        retVal['status'] = "fail"
-        retVal['msg'] = "Could not unarchive board"
-
-    return HttpResponse(json.dumps(retVal))
+        return HttpServerError("Board could not be un-archived at this time")
 
 def api_v1_board_active_cards(request, boardID):
     '''Retrieve all active cards for the stated board'''
-    cards = serializers.serialize('json',
-                                  Card.objects.filter(
-                                      board=Board.objects.get(pk=boardID),
-                                      archived=False
-                                  ))
-    return HttpResponse(cards)
+    cardObjects = Card.objects.filter(board=Board.objects.get(pk=boardID),
+                                      archived=False)
+    if cardObjects:
+        cards = serializers.serialize('json', cardObjects)
+        return HttpResponse(cards)
+    else:
+        return HttpResponseNotFound("There are no active cards on this board")
 
 def api_v1_board_archived_cards(request, boardID):
     '''Retrieve all archived cards for the stated board'''
-    cards = serializers.serialize('json',
-                                  Card.objects.filter(
-                                      board=Board.objects.get(pk=boardID),
-                                      archived=True
-                                  ))
-    return HttpResponse(cards)
+    cardObjects = Card.objects.filter(board=Board.objects.get(pk=boardID),
+                                      archived=True)
+    if cardObjects:
+        cards = serializers.serialize('json', cardObjects)
+        return HttpResponse(cards)
+    else:
+        return HttpResponseNotFound("This board has no archived cards")
 
 # -----------------------------------------------------------------------------
 # API Functions related to Card Operations
@@ -176,7 +171,6 @@ def api_v1_card_create(request):
     data as well as card name, quantity, description, board reference, and
     active state'''
     cardForm = CardForm(request.POST or None)
-    retVal = {}
     if request.POST and cardForm.is_valid():
         newCard = Card()
         newCard.name = cardForm.cleaned_data['name']
@@ -189,42 +183,29 @@ def api_v1_card_create(request):
             newCard.save()
             return HttpResponse(serializers.serialize('json', [newCard,]))
         except:
-            retVal['status'] = "fail"
-            retVal['msg'] = "Could not create card"
+            return HttpResponseServerError("Could not create card at this time")
     else:
-        retVal['status'] = "fail"
-        retVal['msg'] = "Invalid form data"
-    return HttpResponse(json.dumps(retVal))
+        return HttpResponseBadRequest("Invalid Form Data!")
 
 def api_v1_card_archive(request, cardID):
     '''Archive a card identified by the given primary key'''
     card = Card.objects.get(pk=cardID)
     card.archived = True
-    retVal = {}
     try:
         card.save()
-        retVal['status'] = "success"
-        retVal['msg'] = "Card archived successfully"
+        return HttpResponse("Card successfully archived")
     except:
-        retVal['status'] = "fail"
-        retVal['msg'] = "Could not archive card"
-
-    return HttpResponse(json.dumps(retVal))
+        return HttpResponseServerError("Card could not be archived at this time")
 
 def api_v1_card_unarchive(request, cardID):
     '''Unarchive a card identified by the given primary key'''
     card = Card.objects.get(pk=cardID)
     card.archived = False
-    retVal = {}
     try:
         card.save()
-        retVal['status'] = "success"
-        retVal['msg'] = "Card unarchived successfully"
+        return HttpResponse("Card successfully un-archived")
     except:
-        retVal['status'] = "fail"
-        retVal['msg'] = "Could not unarchive card"
-
-    return HttpResponse(json.dumps(retVal))
+        return HttpResponseServerError("Card could not be un-archived at this time")
 
 def api_v1_card_move_right(request, cardID):
     '''Move a card to the next stage to the left'''
@@ -234,19 +215,17 @@ def api_v1_card_move_right(request, cardID):
     card = get_object_or_404(Card, pk=cardID)
     stageID = stages.index(card.stage)
 
-    retVal = {}
     try:
         card.stage = stages[stageID + 1]
         card.save()
+        retVal = {}
         retVal['status'] = "success"
         retVal['msg'] = "Card unarchived successfully"
         retVal['stageName'] = card.stage.name
         retVal['stageID'] = card.stage.pk
+        HttpResponse(json.dumps(retVal))
     except:
-        retVal['status'] = "fail"
-        retVal['msg'] = "Could not unarchive card"
-
-    return HttpResponse(json.dumps(retVal))
+        return HttpResponseServerError("Card could not be moved at this time")
 
 def api_v1_card_move_left(request, cardID):
     '''Move a card to the next stage to the left'''
@@ -256,21 +235,19 @@ def api_v1_card_move_left(request, cardID):
     card = get_object_or_404(Card, pk=cardID)
     stageID = stages.index(card.stage)
 
-    retVal = {}
     try:
         if stageID - 1 < 0:
             raise IndexError
         card.stage = stages[stageID - 1]
         card.save()
+        retVal = {}
         retVal['status'] = "success"
         retVal['msg'] = "Card unarchived successfully"
         retVal['stageName'] = card.stage.name
         retVal['stageID'] = card.stage.pk
+        return HttpResponse(json.dumps(retVal))
     except:
-        retVal['status'] = "fail"
-        retVal['msg'] = "Could not unarchive card"
-
-    return HttpResponse(json.dumps(retVal))
+        return HttpResponseServerError("Card could not be moved at this time")
 
 # -----------------------------------------------------------------------------
 # API Functions related to Stage Operations
@@ -280,15 +257,18 @@ def api_v1_stage_list(request):
     '''List all stages, can be filtered by the client, will return a list
     of all stages, including stages that the client is not authorized to
     use.'''
-    stages = serializers.serialize('json', Stage.objects.all())
-    return HttpResponse(stages)
+    stageObjects = Stage.objects.all()
+    if stageObjects:
+        stages = serializers.serialize('json', Stage.objects.all())
+        return HttpResponse(stages)
+    else:
+        return HttpResponseNotFound("There are no stages defined")
 
 def api_v1_stage_create(request):
     '''Creates a new stage from POST data.  Takes in a CSRF token with the
     data as well as stage name, quantity, description, board reference, and
     active state'''
     stageForm = StageForm(request.POST or None)
-    retVal = {}
     if request.POST and stageForm.is_valid():
         newStage = Stage()
         newStage.name = stageForm.cleaned_data['name']
@@ -298,67 +278,49 @@ def api_v1_stage_create(request):
             newStage.save()
             return HttpResponse(serializers.serialize('json', [newStage,]))
         except:
-            retVal['status'] = "fail"
-            retVal['msg'] = "Could not create stage"
+            return HttpResponseServerError("Stage could not be created at this time")
     else:
-        retVal['status'] = "fail"
-        retVal['msg'] = "Invalid form data"
-    return HttpResponse(json.dumps(retVal))
+        return HttpResponseBadRequest("Invalid Form Data!")
 
 def api_v1_stage_archive(request, stageID):
     '''Archive a stage identified by the given primary key'''
     stage = Stage.objects.get(pk=stageID)
     stage.archived = True
-    retVal = {}
     try:
         stage.save()
-        retVal['status'] = "success"
-        retVal['msg'] = "Stage archived successfully"
+        return HttpResponse("Stage successfully archived")
     except:
-        retVal['status'] = "fail"
-        retVal['msg'] = "Could not archive stage"
-
-    return HttpResponse(json.dumps(retVal))
+        return HttpResponseServerError("Stage could not be archived at this time")
 
 def api_v1_stage_unarchive(request, stageID):
     '''Unarchive a stage identified by the given primary key'''
     stage = Stage.objects.get(pk=stageID)
     stage.archived = False
-    retVal = {}
     try:
         stage.save()
-        retVal['status'] = "success"
-        retVal['msg'] = "Stage unarchived successfully"
+        return HttpResponse("Stage successfully un-archived")
     except:
-        retVal['status'] = "fail"
-        retVal['msg'] = "Could not unarchive stage"
-
-    return HttpResponse(json.dumps(retVal))
+        return HttpResponse("Stage could not be un-archived at this time")
 
 def api_v1_stage_move_left(request, stageID):
     '''Move a stage to the left'''
     stageCurrent = Stage.objects.get(pk=stageID)
-    retVal = {}
     if stageCurrent.index > 0:
         stageLeft = Stage.objects.get(index=stageCurrent.index-1)
-        stageCurrent.swap(stageLeft)
-        retVal['status'] = "success"
-        retVal['msg'] = "Stages swapped successfully"
+        try:
+            stageCurrent.swap(stageLeft)
+            return HttpResponse("Stage successfully moved")
+        except:
+            return HttpResponseServerError("Stage could not be moved at this time")
     else:
-        retVal['status'] = "fail"
-        retVal['msg'] = "No left stage!"
-    return HttpResponse(json.dumps(retVal))
+        return HttpResponseBadRequest("Stage cannot be moved")
 
 def api_v1_stage_move_right(request, stageID):
     '''Move a stage to the right'''
     stageCurrent = Stage.objects.get(pk=stageID)
-    retVal = {}
     try:
         stageRight = Stage.objects.get(index=stageCurrent.index+1)
         stageCurrent.swap(stageRight)
-        retVal['status'] = "success"
-        retVal['msg'] = "Stages swapped successfully"
-    except Stage.DoesNotExist:
-        retVal['status'] = "fail"
-        retVal['msg'] = "No left stage!"
-    return HttpResponse(json.dumps(retVal))
+        return HttpResponse("Stage successfully moved")
+    except:
+        return HttpResponseServerError("Stage could not be moved at this time")
