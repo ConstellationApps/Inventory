@@ -140,7 +140,7 @@ def api_v1_board_unarchive(request, boardID):
         board.save()
         return HttpResponse("Board Un-Archived")
     except:
-        return HttpServerError("Board could not be un-archived at this time")
+        return HttpResponseServerError("Board could not be un-archived at this time")
 
 def api_v1_board_active_cards(request, boardID):
     '''Retrieve all active cards for the stated board'''
@@ -223,7 +223,7 @@ def api_v1_card_move_right(request, cardID):
         retVal['msg'] = "Card unarchived successfully"
         retVal['stageName'] = card.stage.name
         retVal['stageID'] = card.stage.pk
-        HttpResponse(json.dumps(retVal))
+        return HttpResponse(json.dumps(retVal))
     except:
         return HttpResponseServerError("Card could not be moved at this time")
 
