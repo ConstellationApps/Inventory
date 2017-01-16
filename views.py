@@ -6,6 +6,7 @@ from django.http import HttpResponseNotFound
 from django.http import HttpResponseBadRequest
 from django.http import HttpResponseServerError
 from django.core import serializers
+from django.urls import reverse
 
 import json
 import operator
@@ -146,7 +147,7 @@ def api_v1_board_update(request, boardID):
             board.name = newName
             board.desc = newDesc
             board.save()
-            return HttpResponse(serializers.serialize('json', [board,]))
+            return HttpResponse(json.dumps({"board" : reverse("view_board", args=[boardID,])}))
         except:
             return HttpResponseServerError("Invalid board ID")
     else:
