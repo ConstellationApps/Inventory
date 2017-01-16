@@ -46,6 +46,8 @@ urlpatterns = [
     url(r'^api/v1/board/([\d]*)/archived-cards$',
         views.api_v1_board_archived_cards,
         name="api_v1_board_archived_cards"),
+    url(r'^api/v1/board/([\d]*)/info$', views.api_v1_board_info,
+        name="api_v1_board_info"),
 
 # -----------------------------------------------------------------------------
 # API Routes related to Card Operations

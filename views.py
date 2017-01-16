@@ -122,6 +122,22 @@ def api_v1_board_create(request):
     else:
         return HttpResponseBadRequest("Invalid Form Data!")
 
+def api_v1_board_update(request, boardID):
+    '''Update a board, based upon the form data contained in request'''
+    boardForm = BoardForm(request.POST or None)
+    if request.POST and boardForm.is_valid():
+        try:
+            board = board.objects.get(pk=boardID)
+            newName = boardForm.cleaned_data['name']
+            newDesc = boardForm.cleaned_data['desc']
+            board.name = newName
+            board.desc = newDesc
+            board.save()
+        except:
+            return HttpResponseServerError("Invalid board ID")
+    else:
+        return HttpResponseBadRequest("Invalid Form Data!")
+
 def api_v1_board_archive(request, boardID):
     '''archives a board, returns status object'''
     board = Board.objects.get(pk=boardID)
@@ -161,6 +177,15 @@ def api_v1_board_archived_cards(request, boardID):
         return HttpResponse(cards)
     else:
         return HttpResponseNotFound("This board has no archived cards")
+
+def api_v1_board_info(request, boardID):
+    '''Retrieve the title and description for the stated board'''
+    try:
+        board = Board.objects.get(pk=boardID)
+        response = json.dumps({"title" : board.name, "desc" : board.desc})
+        return HttpResponse(response)
+    except:
+        return HttpResponseNotFound("No board with given ID found")
 
 # -----------------------------------------------------------------------------
 # API Functions related to Card Operations
