@@ -17,6 +17,7 @@ urlpatterns = [
 # =============================================================================
 
     url(r'^manage/boards$', views.manage_boards),
+    url(r'^manage/board/([\d]*)/edit$', views.manage_board_edit),
     url(r'^manage/stages$', views.manage_stages),
 
 # =============================================================================
@@ -36,6 +37,8 @@ urlpatterns = [
         name="api_v1_board_list"),
     url(r'^api/v1/board/create$', views.api_v1_board_create,
         name="api_v1_board_create"),
+    url(r'^api/v1/board/([\d]*)/update$', views.api_v1_board_update,
+        name="api_v1_board_update"),
     url(r'^api/v1/board/([\d]*)/archive$', views.api_v1_board_archive,
         name="api_v1_board_archive"),
     url(r'^api/v1/board/([\d]*)/unarchive$', views.api_v1_board_unarchive,

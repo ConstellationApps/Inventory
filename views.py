@@ -73,6 +73,19 @@ def manage_boards(request):
         'template_settings': template_settings,
     })
 
+def manage_board_edit(request, board_id):
+    template_settings_object = GlobalTemplateSettings(allowBackground=False)
+    template_settings = template_settings_object.settings_dict()
+    board = Board.objects.get(pk=board_id)
+    boardName = board.name
+    boardDesc = board.desc
+    boardForm = BoardForm(initial={'name': boardName, 'desc': boardDesc})
+    return render(request, 'SimpleInventory/edit-board.html', {
+        'form': boardForm,
+        'board_id': board_id,
+        'template_settings': template_settings,
+    })
+
 def manage_stages(request):
     template_settings_object = GlobalTemplateSettings(allowBackground=False)
     template_settings = template_settings_object.settings_dict()
@@ -126,15 +139,13 @@ def api_v1_board_update(request, boardID):
     '''Update a board, based upon the form data contained in request'''
     boardForm = BoardForm(request.POST or None)
     if request.POST and boardForm.is_valid():
-        try:
-            board = board.objects.get(pk=boardID)
-            newName = boardForm.cleaned_data['name']
-            newDesc = boardForm.cleaned_data['desc']
-            board.name = newName
-            board.desc = newDesc
-            board.save()
-        except:
-            return HttpResponseServerError("Invalid board ID")
+        board = Board.objects.get(pk=boardID)
+        newName = boardForm.cleaned_data['name']
+        newDesc = boardForm.cleaned_data['desc']
+        board.name = newName
+        board.desc = newDesc
+        board.save()
+        return HttpResponse(serializers.serialize('json', [board,]))
     else:
         return HttpResponseBadRequest("Invalid Form Data!")
 
