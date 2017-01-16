@@ -139,13 +139,16 @@ def api_v1_board_update(request, boardID):
     '''Update a board, based upon the form data contained in request'''
     boardForm = BoardForm(request.POST or None)
     if request.POST and boardForm.is_valid():
-        board = Board.objects.get(pk=boardID)
-        newName = boardForm.cleaned_data['name']
-        newDesc = boardForm.cleaned_data['desc']
-        board.name = newName
-        board.desc = newDesc
-        board.save()
-        return HttpResponse(serializers.serialize('json', [board,]))
+        try:
+            board = Board.objects.get(pk=boardID)
+            newName = boardForm.cleaned_data['name']
+            newDesc = boardForm.cleaned_data['desc']
+            board.name = newName
+            board.desc = newDesc
+            board.save()
+            return HttpResponse(serializers.serialize('json', [board,]))
+        except:
+            return HttpResponseServerError("Invalid board ID")
     else:
         return HttpResponseBadRequest("Invalid Form Data!")
 
