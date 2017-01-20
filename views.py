@@ -1,4 +1,5 @@
-from django.forms import formset_factory
+import json
+
 from django.shortcuts import render
 from django.shortcuts import get_object_or_404
 from django.http import HttpResponse
@@ -7,9 +8,6 @@ from django.http import HttpResponseBadRequest
 from django.http import HttpResponseServerError
 from django.core import serializers
 from django.urls import reverse
-
-import json
-import operator
 
 from SimpleBase.models import GlobalTemplateSettings
 

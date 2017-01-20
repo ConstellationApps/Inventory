@@ -22,12 +22,13 @@
     var url_api_v1_board_list = "{% url 'api_v1_board_list' %}"
     var url_api_v1_board_unarchive = "{% url 'api_v1_board_unarchive' 0 %}"
     var url_api_v1_board_archive = "{% url 'api_v1_board_archive' 0 %}"
+    var url_board_edit = "{% url 'manage_board_edit' 0 %}"
     var url_view_board = "{% url 'view_board' 0 %}"
 </script>
 {% endblock %}
 
 {% block content %}
-<div id="boardsCard" class="mdl-card mdl-cell--8-col mdl-cell--2-offset mdl-shadow--2dp">
+<div id="boardsCard" class="mdl-card mdl-cell--8-col mdl-cell--2-offset-desktop mdl-shadow--2dp">
     {% verbatim %}
     <script id="handlebars-board" type="text/x-handlebars-template">
         <div class="mdl-card__title">
@@ -43,7 +44,8 @@
                     </span>
                     <span class="mdl-list__item-secondary-content">
                         <span class="mdl-list__item-secondary-action">
-                            <a href="#" onclick="archiveBoard({{id}})"><i class="material-icons">close</i></a>
+                          <a href="#" onclick="archiveBoard({{id}})"><i class="material-icons">close</i></a>
+			  <a href="#" onclick="editBoard({{id}})"><i class="material-icons">edit</i></a>
                         </span>
                     </span>
                 </div>
@@ -72,19 +74,19 @@
     </script>
     {% endverbatim %}
 </div>
-<div id="formCard" class="form-card mdl-card mdl-cell--8-col mdl-cell--2-offset mdl-shadow--2dp">
+<div id="formCard" class="form-card mdl-card mdl-cell--8-col mdl-cell--2-offset-desktop mdl-shadow--2dp">
     <div class="mdl-card__title">
         <h2 class="mdl-card__title-text">New Board</h2>
     </div>
     <div class="mdl-card__supporting-text">
-        <form method="post" action="{% url 'api_v1_board_create' %}" id="newBoardForm" class="mdl-cell--2-offset mdl-cell--8-col">
+        <form method="post" action="{% url 'api_v1_board_create' %}" id="newBoardForm" class="mdl-cell--2-offset-desktop mdl-cell--8-col">
             {% csrf_token %}
             {{ form.active.as_hidden }}
-            <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label mdl-cell--12-col mdl-cell--5-col-tablet mdl-cell--bottom">
+            <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label mdl-cell--12-col mdl-cell--bottom">
                 {{ form.name }}
                 <label class="mdl-textfield__label" for="{{ form.name.id_for_label }}">Name</label>
             </div>
-            <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label mdl-cell--12-col mdl-cell--3-col-tablet mdl-cell--bottom">
+            <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label mdl-cell--12-col mdl-cell--bottom">
                 {{ form.desc }}
                 <label class="mdl-textfield__label" for="{{ form.desc.id_for_label }}">Description</label>
             </div>

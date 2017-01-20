@@ -17,7 +17,8 @@ urlpatterns = [
 # =============================================================================
 
     url(r'^manage/boards$', views.manage_boards),
-    url(r'^manage/board/([\d]*)/edit$', views.manage_board_edit),
+    url(r'^manage/board/([\d]*)/edit$', views.manage_board_edit,
+        name="manage_board_edit"),
     url(r'^manage/stages$', views.manage_stages),
 
 # =============================================================================

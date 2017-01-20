@@ -71,6 +71,11 @@ function archiveBoard(id) {
     });
 }
 
+/* edit a board */
+function editBoard(id) {
+    window.location.href = url_board_edit.replace(0, id);
+}
+
 /* unarchive a board */
 function unarchiveBoard(id) {
   $.getJSON(url_api_v1_board_unarchive.replace(0, id), function(){
@@ -97,7 +102,8 @@ function addItem(event) {
   $.post(event.target.action, form_data.serialize(), function(response) {
     var board = {};
     response = response[0];
-    board.id = response.pk;
+
+      board.id = response.pk;
     board.name = response.fields.name;
     board.url = url_view_board.replace(0, response.pk);
     boards_data.active_boards.push(board);
