@@ -103,7 +103,7 @@ function addItem(event) {
     var board = {};
     response = response[0];
 
-      board.id = response.pk;
+    board.id = response.pk;
     board.name = response.fields.name;
     board.url = url_view_board.replace(0, response.pk);
     boards_data.active_boards.push(board);
