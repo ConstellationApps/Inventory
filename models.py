@@ -1,5 +1,6 @@
 from django.db import models
 from django.core.exceptions import ValidationError
+from django.contrib.auth.models import Group
 
 class Card(models.Model):
     name = models.CharField(max_length=128)
@@ -13,6 +14,23 @@ class Board(models.Model):
     name = models.CharField(max_length=128)
     desc = models.TextField()
     archived = models.BooleanField(default=False)
+
+    # We could do this with django permissions, but we want them to be granular
+    readGroup = models.ForeignKey(Group, null=True, blank=True,
+                                  related_name='+')
+    moveGroup = models.ForeignKey(Group, null=True, blank=True,
+                                  related_name='+')
+    addGroup = models.ForeignKey(Group, null=True, blank=True,
+                                 related_name='+')
+    deleteGroup = models.ForeignKey(Group, null=True, blank=True,
+                                    related_name='+')
+    manageGroup = models.ForeignKey(Group, null=True, blank=True,
+                                    related_name='+')
+
+    class Meta:
+        permissions = (
+            ("create_board", "Can create a order board"),
+        )
 
 class Stage(models.Model):
     name = models.CharField(max_length=128)
@@ -47,3 +65,8 @@ class Stage(models.Model):
         # Save each one without checking uniqueness
         super(Stage, self).save()
         super(Stage, otherStage).save()
+
+    class Meta:
+        permissions = (
+            ("modify_stages", "Can modify board stages"),
+        )

@@ -8,6 +8,10 @@ from django.http import HttpResponseBadRequest
 from django.http import HttpResponseServerError
 from django.core import serializers
 from django.urls import reverse
+from django.contrib.auth.decorators import (
+    login_required,
+    permission_required
+)
 
 from SimpleBase.models import GlobalTemplateSettings
 
@@ -19,11 +23,14 @@ from .models import Card
 from .models import Stage
 from .models import Board
 
+from .util import board_permission, board_perms
+
 
 # =============================================================================
 # View Functions
 # =============================================================================
 
+@login_required
 def view_list(request):
     '''Return the base template that will call the API to display
     a list of boards'''
@@ -34,6 +41,9 @@ def view_list(request):
         'template_settings': template_settings,
     })
 
+
+@login_required
+@board_permission('read')
 def view_board(request, board_id):
     '''Return the base template that will call the API to display the
     entire board with all the cards'''
@@ -41,12 +51,22 @@ def view_board(request, board_id):
     template_settings = template_settings_object.settings_dict()
     form = CardForm()
 
+    can_move = board_perms(request.user, 'move', board_id)
+    can_add = board_perms(request.user, 'add', board_id)
+    can_delete = board_perms(request.user, 'delete', board_id)
+
     return render(request, 'SimpleInventory/board.html', {
         'form': form,
         'id': board_id,
         'template_settings': template_settings,
+        'can_move': can_move,
+        'can_add': can_add,
+        'can_delete': can_delete,
     })
 
+
+@login_required
+@board_permission('read')
 def view_board_archive(request, board_id):
     '''Return the base template that will call the API to display the
     board's archived cards'''
@@ -62,6 +82,9 @@ def view_board_archive(request, board_id):
 # Management Functions
 # =============================================================================
 
+
+@login_required
+@permission_required('Board.create_board')
 def manage_boards(request):
     template_settings_object = GlobalTemplateSettings(allowBackground=False)
     template_settings = template_settings_object.settings_dict()
@@ -72,19 +95,23 @@ def manage_boards(request):
         'template_settings': template_settings,
     })
 
+
+@login_required
+@board_permission('manage')
 def manage_board_edit(request, board_id):
     template_settings_object = GlobalTemplateSettings(allowBackground=False)
     template_settings = template_settings_object.settings_dict()
     board = Board.objects.get(pk=board_id)
-    boardName = board.name
-    boardDesc = board.desc
-    boardForm = BoardForm(initial={'name': boardName, 'desc': boardDesc})
+    boardForm = BoardForm(instance=board)
     return render(request, 'SimpleInventory/edit-board.html', {
         'form': boardForm,
         'board_id': board_id,
         'template_settings': template_settings,
     })
 
+
+@login_required
+@permission_required('Stage.modify_stages')
 def manage_stages(request):
     template_settings_object = GlobalTemplateSettings(allowBackground=False)
     template_settings = template_settings_object.settings_dict()
@@ -93,6 +120,7 @@ def manage_stages(request):
         'form': stageForm,
         'template_settings': template_settings,
     })
+
 
 # =============================================================================
 # API Functions for the v1 API
@@ -105,18 +133,22 @@ def manage_stages(request):
 # -----------------------------------------------------------------------------
 # API Functions related to Board Operations
 # -----------------------------------------------------------------------------
-
+@login_required
 def api_v1_board_list(request):
-    '''List all boards, can be filtered by the client, will return a list
-    of all boards, including boards that the client is not authorized to
-    use.'''
-    boardObjects = Board.objects.all()
+    '''List all boards that a user is allowed to view'''
+    if not request.user.is_superuser:
+        boardObjects = Board.objects.filter(pk__in=request.user.groups.all())
+    else:
+        boardObjects = Board.objects.all()
     if boardObjects:
         boards = serializers.serialize('json', boardObjects)
         return HttpResponse(boards)
     else:
         return HttpResponseNotFound("You have no boards at this time")
 
+
+@login_required
+@permission_required('SimpleInventory.create_board')
 def api_v1_board_create(request):
     '''Create a board, takes a post with a CSRF token, name, and
     description and returns a json object containing the status which will
@@ -126,6 +158,11 @@ def api_v1_board_create(request):
         newBoard = Board()
         newBoard.name = boardForm.cleaned_data['name']
         newBoard.desc = boardForm.cleaned_data['desc']
+        newBoard.readGroup = boardForm.cleaned_data['readGroup']
+        newBoard.addGroup = boardForm.cleaned_data['addGroup']
+        newBoard.moveGroup = boardForm.cleaned_data['moveGroup']
+        newBoard.deleteGroup = boardForm.cleaned_data['deleteGroup']
+        newBoard.manageGroup = boardForm.cleaned_data['manageGroup']
         try:
             newBoard.save()
             return HttpResponse(serializers.serialize('json', [newBoard,]))
@@ -134,6 +171,9 @@ def api_v1_board_create(request):
     else:
         return HttpResponseBadRequest("Invalid Form Data!")
 
+
+@login_required
+@board_permission('manage')
 def api_v1_board_update(request, boardID):
     '''Update a board, based upon the form data contained in request'''
     boardForm = BoardForm(request.POST or None)
@@ -144,6 +184,11 @@ def api_v1_board_update(request, boardID):
             newDesc = boardForm.cleaned_data['desc']
             board.name = newName
             board.desc = newDesc
+            board.readGroup = boardForm.cleaned_data['readGroup']
+            board.addGroup = boardForm.cleaned_data['addGroup']
+            board.moveGroup = boardForm.cleaned_data['moveGroup']
+            board.deleteGroup = boardForm.cleaned_data['deleteGroup']
+            board.manageGroup = boardForm.cleaned_data['manageGroup']
             board.save()
             return HttpResponse(json.dumps({"board" : reverse("view_board", args=[boardID,])}))
         except:
@@ -151,6 +196,9 @@ def api_v1_board_update(request, boardID):
     else:
         return HttpResponseBadRequest("Invalid Form Data!")
 
+
+@login_required
+@board_permission('manage')
 def api_v1_board_archive(request, boardID):
     '''archives a board, returns status object'''
     board = Board.objects.get(pk=boardID)
@@ -161,6 +209,9 @@ def api_v1_board_archive(request, boardID):
     except:
         return HttpResponseServerError("Board could not be archived at this time")
 
+
+@login_required
+@board_permission('manage')
 def api_v1_board_unarchive(request, boardID):
     '''unarchives a board, returns status object'''
     board = Board.objects.get(pk=boardID)
@@ -171,6 +222,9 @@ def api_v1_board_unarchive(request, boardID):
     except:
         return HttpResponseServerError("Board could not be un-archived at this time")
 
+
+@login_required
+@board_permission('read')
 def api_v1_board_active_cards(request, boardID):
     '''Retrieve all active cards for the stated board'''
     cardObjects = Card.objects.filter(board=Board.objects.get(pk=boardID),
@@ -181,6 +235,9 @@ def api_v1_board_active_cards(request, boardID):
     else:
         return HttpResponseNotFound("There are no active cards on this board")
 
+
+@login_required
+@board_permission('read')
 def api_v1_board_archived_cards(request, boardID):
     '''Retrieve all archived cards for the stated board'''
     cardObjects = Card.objects.filter(board=Board.objects.get(pk=boardID),
@@ -191,6 +248,9 @@ def api_v1_board_archived_cards(request, boardID):
     else:
         return HttpResponseNotFound("This board has no archived cards")
 
+
+@login_required
+@board_permission('read')
 def api_v1_board_info(request, boardID):
     '''Retrieve the title and description for the stated board'''
     try:
@@ -200,16 +260,20 @@ def api_v1_board_info(request, boardID):
     except:
         return HttpResponseNotFound("No board with given ID found")
 
+
 # -----------------------------------------------------------------------------
 # API Functions related to Card Operations
 # -----------------------------------------------------------------------------
-
+@login_required
 def api_v1_card_create(request):
     '''Creates a new card from POST data.  Takes in a CSRF token with the
     data as well as card name, quantity, description, board reference, and
     active state'''
     cardForm = CardForm(request.POST or None)
     if request.POST and cardForm.is_valid():
+        if not board_perms(request.user, 'add',
+                           cardForm.cleaned_data['board'].id):
+            return HttpResponseServerError("Permission Denied")
         newCard = Card()
         newCard.name = cardForm.cleaned_data['name']
         newCard.quantity = cardForm.cleaned_data['quantity']
@@ -225,9 +289,15 @@ def api_v1_card_create(request):
     else:
         return HttpResponseBadRequest("Invalid Form Data!")
 
+
+@login_required
 def api_v1_card_archive(request, cardID):
     '''Archive a card identified by the given primary key'''
     card = Card.objects.get(pk=cardID)
+
+    if not board_perms(request.user, 'move',
+                       card.board.id):
+        return HttpResponseServerError("Permission Denied")
     card.archived = True
     try:
         card.save()
@@ -235,9 +305,14 @@ def api_v1_card_archive(request, cardID):
     except:
         return HttpResponseServerError("Card could not be archived at this time")
 
+
+@login_required
 def api_v1_card_unarchive(request, cardID):
     '''Unarchive a card identified by the given primary key'''
     card = Card.objects.get(pk=cardID)
+    if not board_perms(request.user, 'move',
+                       card.board.id):
+        return HttpResponseServerError("Permission Denied")
     card.archived = False
     try:
         card.save()
@@ -245,12 +320,17 @@ def api_v1_card_unarchive(request, cardID):
     except:
         return HttpResponseServerError("Card could not be un-archived at this time")
 
+
+@login_required
 def api_v1_card_move_right(request, cardID):
     '''Move a card to the next stage to the left'''
     stages = list(Stage.objects.filter(archived=False))
     stages.sort(key=lambda x: x.index)
 
     card = get_object_or_404(Card, pk=cardID)
+    if not board_perms(request.user, 'move',
+                       card.board.id):
+        return HttpResponseServerError("Permission Denied")
     stageID = stages.index(card.stage)
 
     try:
@@ -265,12 +345,17 @@ def api_v1_card_move_right(request, cardID):
     except:
         return HttpResponseServerError("Card could not be moved at this time")
 
+
+@login_required
 def api_v1_card_move_left(request, cardID):
     '''Move a card to the next stage to the left'''
     stages = list(Stage.objects.filter(archived=False))
     stages.sort(key=lambda x: x.index)
 
     card = get_object_or_404(Card, pk=cardID)
+    if not board_perms(request.user, 'move',
+                       card.board.id):
+        return HttpResponseServerError("Permission Denied")
     stageID = stages.index(card.stage)
 
     try:
@@ -287,10 +372,11 @@ def api_v1_card_move_left(request, cardID):
     except:
         return HttpResponseServerError("Card could not be moved at this time")
 
+
 # -----------------------------------------------------------------------------
 # API Functions related to Stage Operations
 # -----------------------------------------------------------------------------
-
+@login_required
 def api_v1_stage_list(request):
     '''List all stages, can be filtered by the client, will return a list
     of all stages, including stages that the client is not authorized to
@@ -302,6 +388,9 @@ def api_v1_stage_list(request):
     else:
         return HttpResponseNotFound("There are no stages defined")
 
+
+@login_required
+@permission_required('SimpleInventory.modify_stages', raise_exception=True)
 def api_v1_stage_create(request):
     '''Creates a new stage from POST data.  Takes in a CSRF token with the
     data as well as stage name, quantity, description, board reference, and
@@ -320,6 +409,8 @@ def api_v1_stage_create(request):
     else:
         return HttpResponseBadRequest("Invalid Form Data!")
 
+
+@permission_required('SimpleInventory.modify_stages', raise_exception=True)
 def api_v1_stage_archive(request, stageID):
     '''Archive a stage identified by the given primary key'''
     stage = Stage.objects.get(pk=stageID)
@@ -330,6 +421,8 @@ def api_v1_stage_archive(request, stageID):
     except:
         return HttpResponseServerError("Stage could not be archived at this time")
 
+
+@permission_required('SimpleInventory.modify_stages', raise_exception=True)
 def api_v1_stage_unarchive(request, stageID):
     '''Unarchive a stage identified by the given primary key'''
     stage = Stage.objects.get(pk=stageID)
@@ -340,6 +433,8 @@ def api_v1_stage_unarchive(request, stageID):
     except:
         return HttpResponse("Stage could not be un-archived at this time")
 
+
+@permission_required('SimpleInventory.modify_stages', raise_exception=True)
 def api_v1_stage_move_left(request, stageID):
     '''Move a stage to the left'''
     stageCurrent = Stage.objects.get(pk=stageID)
@@ -353,6 +448,8 @@ def api_v1_stage_move_left(request, stageID):
     else:
         return HttpResponseBadRequest("Stage cannot be moved")
 
+
+@permission_required('SimpleInventory.modify_stages', raise_exception=True)
 def api_v1_stage_move_right(request, stageID):
     '''Move a stage to the right'''
     stageCurrent = Stage.objects.get(pk=stageID)

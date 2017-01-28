@@ -76,6 +76,9 @@
                 </div>
                 <div class="mdl-card__supporting-text mdl-color-text--white">
                     <div id="card_{{id}}_notes" class="card_notes">{{notes}}</div>
+{% endverbatim %}
+{% if can_move %}
+{% verbatim %}
                     <button onclick="moveItem({{id}}, 'left')" id="card_{{id}}_left_button" class="card_button card_left_button mdl-cell--hide-tablet mdl-cell--hide-phone">
                         <i class="material-icons">chevron_left</i>
                     </button>
@@ -88,7 +91,14 @@
                     <button onclick="moveItem({{id}}, 'right')" id="card_{{id}}_down_button" class="card_button card_down_button mdl-cell--hide-desktop">
                         <i class="material-icons">keyboard_arrow_down</i>
                     </button>
+{% endverbatim %}
+{% endif %}
+{% if can_delete %}
+{% verbatim %}
                     <div onclick="deleteItem({{id}})" id="card_{{id}}_close_button" class="card_button card_close_button">&times;</div>
+{% endverbatim %}
+                    {% endif %}
+{% verbatim %}
                     <div id="card_{{id}}_progress" class="progress"> <div class="mdl-progress mdl-js-progress mdl-progress__indeterminate"></div></div>
                 </div>
             </div>
@@ -100,12 +110,14 @@
 </div>
 <br/>
 <div class="divider"></div>
+{% endverbatim %}
+{% if can_add %}
 <div class="fixed-action-btn">
     <button id="showNewItem" class="mdl-button mdl-js-button mdl-button--fab mdl-button--colored">
         <i class="material-icons">add</i>
     </button>
 </div>
+{% endif %}
 
 <br/>
-{% endverbatim %}
 {% endblock %}

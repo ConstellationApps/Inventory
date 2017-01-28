@@ -23,7 +23,8 @@ class BoardForm(ModelForm):
 
     class Meta:
         model = Board
-        fields = ['name', 'desc', 'archived']
+        fields = ['name', 'desc', 'archived', 'readGroup', 'manageGroup',
+                  'addGroup', 'deleteGroup', 'moveGroup']
 
 class StageForm(ModelForm):
     def __init__(self, *args, **kwargs):

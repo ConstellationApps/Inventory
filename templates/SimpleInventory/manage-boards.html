@@ -90,13 +90,40 @@
                 {{ form.desc }}
                 <label class="mdl-textfield__label" for="{{ form.desc.id_for_label }}">Description</label>
             </div>
-            <div class="mdl-card__actions">
-                <div class="mdl-layout-spacer"></div>
-                <button class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--primary">
-                    Create Board <i class="material-icons right">done</i>
-                </button>
+
+            <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
+              {{ form.readGroup }}
+              <label for="{{ form.readGroup.id_for_label }}" class="mdl-textfield__label">Read Group</label>
             </div>
-        </form>
-    </div>
-</div>
-{% endblock %}
+
+            <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
+              {{ form.addGroup }}
+              <label for="{{ form.addGroup.id_for_label }}" class="mdl-textfield__label">Add Group</label>
+            </div>
+
+            <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
+              {{ form.moveGroup }}
+              <label for="{{ form.moveGroup.id_for_label }}" class="mdl-textfield__label">Move Group</label>
+            </div>
+
+            <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
+              {{ form.deleteGroup }}
+              <label for="{{ form.deleteGroup.id_for_label }}" class="mdl-textfield__label">Delete Group</label>
+            </div>
+
+
+            <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
+              {{ form.manageGroup }}
+              <label for="{{ form.mangeGroup.id_for_label }}" class="mdl-textfield__label">Manage Group</label>
+            </div>
+
+            <div class="mdl-card__actions">
+              <div class="mdl-layout-spacer"></div>
+              <button class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--primary">
+                Create Board <i class="material-icons right">done</i>
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+      {% endblock %}
