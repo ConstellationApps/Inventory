@@ -17,7 +17,7 @@
 {% endblock %}
 
 {% block content %}
-<div id="formCard" class="form-card mdl-card mdl-cell--8-col mdl-cell--2-offset-desktop mdl-shadow--2dp">
+<div id="formCard" class="form-card mdl-card mdl-cell--8-col mdl-cell--2-offset-desktop mdl-shadow--2dp mdl-grid">
     <div class="mdl-card__title">
         <h2 class="mdl-card__title-text">Edit Board</h2>
     </div>
@@ -25,11 +25,11 @@
         <form method="post" action="{% url 'api_v1_board_update' board_id %}" id="editBoardForm" class="mdl-cell--2-offset-desktop mdl-cell--8-col">
             {% csrf_token %}
             {{ form.active.as_hidden }}
-            <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label mdl-cell--12-col mdl-cell--5-col-tablet mdl-cell--bottom">
+            <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label mdl-cell--12-col mdl-cell--bottom">
                 {{ form.name }}
                 <label class="mdl-textfield__label" for="{{ form.name.id_for_label }}">Name</label>
             </div>
-            <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label mdl-cell--12-col mdl-cell--3-col-tablet mdl-cell--bottom">
+            <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label mdl-cell--12-col mdl-cell--bottom">
                 {{ form.desc }}
                 <label class="mdl-textfield__label" for="{{ form.desc.id_for_label }}">Description</label>
             </div>

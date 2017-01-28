@@ -29,7 +29,7 @@
 {% endblock %}
 
 {% block content %}
-<div id="stagesCard" class="mdl-card mdl-cell--8-col mdl-cell--2-offset mdl-shadow--2dp">
+<div id="stagesCard" class="mdl-card mdl-cell--8-col mdl-cell--2-offset-desktop mdl-shadow--2dp mdl-grid">
     {% verbatim %}
     <script id="handlebars-stages" type="text/x-handlebars-template">
         <div class="mdl-card__title">
@@ -61,15 +61,15 @@
     </script>
     {% endverbatim %}
 </div>
-<div id="formCard" class="form-card mdl-card mdl-cell--8-col mdl-cell--2-offset mdl-shadow--2dp">
+<div id="formCard" class="form-card mdl-card mdl-cell--8-col mdl-cell--2-offset-desktop mdl-shadow--2dp mdl-grid">
     <div class="mdl-card__title">
         <h2 class="mdl-card__title-text">New Stage</h2>
     </div>
     <div class="mdl-card__supporting-text">
-        <form method="post" action="{% url 'api_v1_stage_create' %}" id="newStageForm" class="mdl-cell--2-offset mdl-cell--8-col">
+        <form method="post" action="{% url 'api_v1_stage_create' %}" id="newStageForm" class="mdl-cell--2-offset-desktop mdl-cell--8-col">
             {% csrf_token %}
             {{ form.archived.as_hidden }}
-            <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label mdl-cell--12-col mdl-cell--5-col-tablet mdl-cell--bottom">
+            <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label mdl-cell--12-col mdl-cell--bottom">
                 {{ form.name }}
                 <label class="mdl-textfield__label" for="{{ form.name.id_for_label }}">Name</label>
             </div>
