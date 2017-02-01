@@ -49,7 +49,9 @@ function renderTemplate(stages_data){
 
 /* Bubble a board up */
 function bubbleUp(id) {
-  $.getJSON(url_api_v1_stage_move_left.replace(0,id), function() {
+  console.log("hello");
+  $.get(url_api_v1_stage_move_left.replace(0,id), function() {
+    console.log("hi");
     var stage_index = stages_data.stages.findIndex(function(element){
       return element.id == id;
     });
@@ -69,7 +71,7 @@ function bubbleUp(id) {
 
 /* Bubble a board down */
 function bubbleDown(id) {
-  $.getJSON(url_api_v1_stage_move_right.replace(0,id), function() {
+  $.get(url_api_v1_stage_move_right.replace(0,id), function() {
     var stage_index = stages_data.stages.findIndex(function(element){
       return element.id == id;
     });
@@ -89,7 +91,7 @@ function bubbleDown(id) {
 
 /* Unarchive a stage */
 function unarchiveStage(id) {
-  $.getJSON(url_api_v1_stage_unarchive.replace(0, id), function() {
+  $.get(url_api_v1_stage_unarchive.replace(0, id), function() {
     var stage_index = stages_data.stages.findIndex(function(element){
       return element.id == id;
     });
@@ -107,7 +109,7 @@ function unarchiveStage(id) {
 
 /* Archive a stage */
 function archiveStage(id) {
-  $.getJSON(url_api_v1_stage_archive.replace(0, id), function() {
+  $.get(url_api_v1_stage_archive.replace(0, id), function() {
     var stage_index = stages_data.stages.findIndex(function(element){
       return element.id == id;
     });

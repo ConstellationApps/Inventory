@@ -54,7 +54,8 @@ class Stage(models.Model):
                 raise ValidationError("Index is already in use.")
 
             # Check for gaps
-            if Stage.objects.filter(index=self.index-1).first() is None:
+            if (self.index != 0 and
+                Stage.objects.filter(index=self.index-1).first() is None):
                 raise ValidationError("Index is not adjacent to another stage.")
 
         super(Stage, self).save(*args, **kwargs)

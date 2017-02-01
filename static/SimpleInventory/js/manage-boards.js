@@ -54,7 +54,7 @@ function renderTemplate(boards_data){
 
 /* archive a board */
 function archiveBoard(id) {
-  $.getJSON(url_api_v1_board_archive.replace(0, id), function(){
+  $.get(url_api_v1_board_archive.replace(0, id), function(){
     var board_index = boards_data.active_boards.findIndex(function(element){
       return element.id == id;
     });
@@ -78,7 +78,7 @@ function editBoard(id) {
 
 /* unarchive a board */
 function unarchiveBoard(id) {
-  $.getJSON(url_api_v1_board_unarchive.replace(0, id), function(){
+  $.get(url_api_v1_board_unarchive.replace(0, id), function(){
     var board_index = boards_data.inactive_boards.findIndex(function(element){
       return element.id == id;
     });
