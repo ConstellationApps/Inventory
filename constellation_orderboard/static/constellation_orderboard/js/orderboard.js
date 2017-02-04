@@ -136,7 +136,7 @@ function moveItem(id, direction) {
 /* Remove a card from the board */
 function deleteItem(id) {
   $('#card_' + id + '_progress').show();
-  $.getJSON(url_api_v1_card_archive.replace(0, id), function(){
+  $.get(url_api_v1_card_archive.replace(0, id), function(){
     var card_stage = card_map.get(id);
     var card_index = board_data.stages[card_stage].cards.findIndex(function(element){
       return element.id == id;

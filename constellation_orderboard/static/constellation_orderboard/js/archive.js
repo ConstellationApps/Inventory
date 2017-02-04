@@ -51,7 +51,7 @@ function renderTemplate(archive_data){
 /* Remove a card from the board */
 function restoreItem(id) {
   $('#card_' + id + '_progress').show();
-  $.getJSON(url_api_v1_card_unarchive.replace(0, id), function(){
+  $.get(url_api_v1_card_unarchive.replace(0, id), function(){
     var card_index = archive_data.cards.findIndex(function(element){
       return element.id == id;
     });
