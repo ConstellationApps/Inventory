@@ -1,4 +1,4 @@
-{% extends "SimpleBase/base.html" %}
+{% extends "constellation_base/base.html" %}
 
 {% block title %}{{ template_settings.organization }} -- Orderboard Archive{% endblock %}
 {% block heading %}Orderboard -- Archive{% endblock %}
@@ -6,7 +6,7 @@
 {% block head %}
 {{ block.super }}
 {% load static %}
-<link rel="stylesheet" href="{% static 'SimpleInventory/css/orderboard.css' %}">
+<link rel="stylesheet" href="{% static 'constellation_orderboard/css/orderboard.css' %}">
 {% endblock %}
 
 {% block js %}
@@ -16,7 +16,7 @@
 </div>
 {{ block.super }}
 {% load static %}
-<script src="{% static 'SimpleInventory/js/archive.js' %}"></script>
+<script src="{% static 'constellation_orderboard/js/archive.js' %}"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/handlebars.js/4.0.5/handlebars.min.js"></script>
 <script>
     var board_id = "{{ id }}"

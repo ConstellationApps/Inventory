@@ -1,4 +1,4 @@
-{% extends "SimpleBase/base.html" %}
+{% extends "constellation_base/base.html" %}
 
 {% block title %}{{ template_settings.organization }} -- Orderboard{% endblock %}
 {% block heading %}Orderboard{% endblock %}
@@ -6,7 +6,7 @@
 {% block head %}
 {{ block.super }}
 {% load static %}
-<link rel="stylesheet" href="{% static 'SimpleInventory/css/orderboard.css' %}">
+<link rel="stylesheet" href="{% static 'constellation_orderboard/css/orderboard.css' %}">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/dialog-polyfill/0.4.4/dialog-polyfill.min.css" />
 {% endblock %}
 
@@ -57,7 +57,7 @@
     var stage_board_id="{{ form.board.id_for_label }}";
 </script>
 
-<script src="{% static 'SimpleInventory/js/orderboard.js' %}"></script>
+<script src="{% static 'constellation_orderboard/js/orderboard.js' %}"></script>
 {% endblock %}
 
 {% block content %}

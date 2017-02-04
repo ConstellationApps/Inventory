@@ -1,9 +1,9 @@
-{% extends "SimpleBase/base.html" %}
+{% extends "constellation_base/base.html" %}
 
 {% block head %}
 {{ block.super }}
 {% load static %}
-<link rel="stylesheet" href="{% static 'SimpleInventory/css/orderboard.css' %}">
+<link rel="stylesheet" href="{% static 'constellation_orderboard/css/orderboard.css' %}">
 {% endblock %}
 
 {% block js %}
@@ -13,7 +13,7 @@
 </div>
 {{ block.super }}
 {% load static %}
-<script src="{% static 'SimpleInventory/js/edit-board.js' %}"></script>
+<script src="{% static 'constellation_orderboard/js/edit-board.js' %}"></script>
 {% endblock %}
 
 {% block content %}

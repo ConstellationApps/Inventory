@@ -1,4 +1,4 @@
-{% extends "SimpleBase/base.html" %}
+{% extends "constellation_base/base.html" %}
 
 {% block title %}Orderboard | Manage Stages{% endblock %}
 {% block heading %}Orderboard | Manage Stages{% endblock %}
@@ -6,7 +6,7 @@
 {% block head %}
 {{ block.super }}
 {% load static %}
-<link rel="stylesheet" href="{% static 'SimpleInventory/css/orderboard.css' %}">
+<link rel="stylesheet" href="{% static 'constellation_orderboard/css/orderboard.css' %}">
 {% endblock %}
 
 {% block js %}
@@ -16,7 +16,7 @@
 </div>
 {{ block.super }}
 {% load static %}
-<script src="{% static 'SimpleInventory/js/manage-stages.js' %}"></script>
+<script src="{% static 'constellation_orderboard/js/manage-stages.js' %}"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/handlebars.js/4.0.5/handlebars.min.js"></script>
 <script>
     var url_api_v1_stage_list = "{% url 'api_v1_stage_list' %}";

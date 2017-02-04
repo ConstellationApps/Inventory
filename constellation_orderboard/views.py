@@ -13,7 +13,7 @@ from django.contrib.auth.decorators import (
     permission_required
 )
 
-from SimpleBase.models import GlobalTemplateSettings
+from constellation_base.models import GlobalTemplateSettings
 
 from .forms import CardForm
 from .forms import StageForm
@@ -37,7 +37,7 @@ def view_list(request):
     template_settings_object = GlobalTemplateSettings(allowBackground=False)
     template_settings = template_settings_object.settings_dict()
 
-    return render(request, 'SimpleInventory/view-list.html', {
+    return render(request, 'constellation_orderboard/view-list.html', {
         'template_settings': template_settings,
     })
 
@@ -55,7 +55,7 @@ def view_board(request, board_id):
     can_add = board_perms(request.user, 'add', board_id)
     can_delete = board_perms(request.user, 'delete', board_id)
 
-    return render(request, 'SimpleInventory/board.html', {
+    return render(request, 'constellation_orderboard/board.html', {
         'form': form,
         'id': board_id,
         'template_settings': template_settings,
@@ -73,7 +73,7 @@ def view_board_archive(request, board_id):
     template_settings_object = GlobalTemplateSettings(allowBackground=False)
     template_settings = template_settings_object.settings_dict()
 
-    return render(request, 'SimpleInventory/archive.html', {
+    return render(request, 'constellation_orderboard/archive.html', {
         'id': board_id,
         'template_settings': template_settings,
     })
@@ -90,7 +90,7 @@ def manage_boards(request):
     template_settings = template_settings_object.settings_dict()
     boardForm = BoardForm()
 
-    return render(request, 'SimpleInventory/manage-boards.html', {
+    return render(request, 'constellation_orderboard/manage-boards.html', {
         'form': boardForm,
         'template_settings': template_settings,
     })
@@ -103,7 +103,7 @@ def manage_board_edit(request, board_id):
     template_settings = template_settings_object.settings_dict()
     board = Board.objects.get(pk=board_id)
     boardForm = BoardForm(instance=board)
-    return render(request, 'SimpleInventory/edit-board.html', {
+    return render(request, 'constellation_orderboard/edit-board.html', {
         'form': boardForm,
         'board_id': board_id,
         'template_settings': template_settings,
@@ -116,7 +116,7 @@ def manage_stages(request):
     template_settings_object = GlobalTemplateSettings(allowBackground=False)
     template_settings = template_settings_object.settings_dict()
     stageForm = StageForm()
-    return render(request, "SimpleInventory/manage-stages.html", {
+    return render(request, "constellation_orderboard/manage-stages.html", {
         'form': stageForm,
         'template_settings': template_settings,
     })
@@ -148,7 +148,7 @@ def api_v1_board_list(request):
 
 
 @login_required
-@permission_required('SimpleInventory.create_board')
+@permission_required('constellation_orderboard.create_board')
 def api_v1_board_create(request):
     '''Create a board, takes a post with a CSRF token, name, and
     description and returns a json object containing the status which will
@@ -390,7 +390,7 @@ def api_v1_stage_list(request):
 
 
 @login_required
-@permission_required('SimpleInventory.modify_stages', raise_exception=True)
+@permission_required('constellation_orderboard.modify_stages', raise_exception=True)
 def api_v1_stage_create(request):
     '''Creates a new stage from POST data.  Takes in a CSRF token with the
     data as well as stage name, quantity, description, board reference, and
@@ -410,7 +410,7 @@ def api_v1_stage_create(request):
         return HttpResponseBadRequest("Invalid Form Data!")
 
 
-@permission_required('SimpleInventory.modify_stages', raise_exception=True)
+@permission_required('constellation_orderboard.modify_stages', raise_exception=True)
 def api_v1_stage_archive(request, stageID):
     '''Archive a stage identified by the given primary key'''
     stage = Stage.objects.get(pk=stageID)
@@ -422,7 +422,7 @@ def api_v1_stage_archive(request, stageID):
         return HttpResponseServerError("Stage could not be archived at this time")
 
 
-@permission_required('SimpleInventory.modify_stages', raise_exception=True)
+@permission_required('constellation_orderboard.modify_stages', raise_exception=True)
 def api_v1_stage_unarchive(request, stageID):
     '''Unarchive a stage identified by the given primary key'''
     stage = Stage.objects.get(pk=stageID)
@@ -434,7 +434,7 @@ def api_v1_stage_unarchive(request, stageID):
         return HttpResponse("Stage could not be un-archived at this time")
 
 
-@permission_required('SimpleInventory.modify_stages', raise_exception=True)
+@permission_required('constellation_orderboard.modify_stages', raise_exception=True)
 def api_v1_stage_move_left(request, stageID):
     '''Move a stage to the left'''
     stageCurrent = Stage.objects.get(pk=stageID)
@@ -449,7 +449,7 @@ def api_v1_stage_move_left(request, stageID):
         return HttpResponseBadRequest("Stage cannot be moved")
 
 
-@permission_required('SimpleInventory.modify_stages', raise_exception=True)
+@permission_required('constellation_orderboard.modify_stages', raise_exception=True)
 def api_v1_stage_move_right(request, stageID):
     '''Move a stage to the right'''
     stageCurrent = Stage.objects.get(pk=stageID)
