@@ -17,7 +17,7 @@ setup(
     author = 'Constellation Dev',
     author_email = 'null@example.com',
     install_requires=[
-        'constellation-base',
+        'constellation_base',
     ],
     classifiers =[
         'Environment :: Web Environment',
