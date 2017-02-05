@@ -459,3 +459,13 @@ def api_v1_stage_move_right(request, stageID):
         return HttpResponse("Stage successfully moved")
     except:
         return HttpResponseServerError("Stage could not be moved at this time")
+
+# -----------------------------------------------------------------------------
+# Dashboard
+# -----------------------------------------------------------------------------
+
+@login_required
+def view_dashboard(request):
+    '''Return a card that will appear on the main dashboard'''
+
+    return render(request, 'constellation_orderboard/dashboard.html')

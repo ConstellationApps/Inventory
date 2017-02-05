@@ -7,7 +7,8 @@ urlpatterns = [
 # View Routes
 # =============================================================================
 
-    url(r'^view/list$', views.view_list),
+    url(r'^view/list$', views.view_list,
+        name="view_list"),
     url(r'^view/board/([\d]*)$', views.view_board,
         name="view_board"),
     url(r'^view/board/([\d]*)/archive$', views.view_board_archive),
@@ -16,10 +17,12 @@ urlpatterns = [
 # Management Routes
 # =============================================================================
 
-    url(r'^manage/boards$', views.manage_boards),
+    url(r'^manage/boards$', views.manage_boards,
+        name="manage_boards"),
     url(r'^manage/board/([\d]*)/edit$', views.manage_board_edit,
         name="manage_board_edit"),
-    url(r'^manage/stages$', views.manage_stages),
+    url(r'^manage/stages$', views.manage_stages,
+        name="manage_stages"),
 
 # =============================================================================
 # API Routes for the v1 API
@@ -84,4 +87,12 @@ urlpatterns = [
         name="api_v1_stage_move_left"),
     url(r'^api/v1/stage/([\d]*)/move-right$', views.api_v1_stage_move_right,
         name="api_v1_stage_move_right"),
+
+# -----------------------------------------------------------------------------
+# Dashboard routes
+# -----------------------------------------------------------------------------
+
+    url(r'^view/dashboard$', views.view_dashboard,
+        name="view_dashboard"),
+
 ]
