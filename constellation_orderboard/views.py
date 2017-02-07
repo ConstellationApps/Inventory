@@ -84,7 +84,7 @@ def view_board_archive(request, board_id):
 
 
 @login_required
-@permission_required('Board.create_board')
+@permission_required('constellation_orderboard.create_board')
 def manage_boards(request):
     template_settings_object = GlobalTemplateSettings(allowBackground=False)
     template_settings = template_settings_object.settings_dict()
@@ -111,7 +111,7 @@ def manage_board_edit(request, board_id):
 
 
 @login_required
-@permission_required('Stage.modify_stages')
+@permission_required('constellation_orderboard.modify_stages')
 def manage_stages(request):
     template_settings_object = GlobalTemplateSettings(allowBackground=False)
     template_settings = template_settings_object.settings_dict()
