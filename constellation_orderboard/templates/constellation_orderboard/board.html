@@ -111,13 +111,18 @@
 <br/>
 <div class="divider"></div>
 {% endverbatim %}
-{% if can_add %}
 <div class="fixed-action-btn">
-    <button id="showNewItem" class="mdl-button mdl-js-button mdl-button--fab mdl-button--colored">
-        <i class="material-icons">add</i>
+  <a href="{% url 'view_board_archive' id %}" class="fab">
+    <button id="archive" class="mdl-button mdl-js-button mdl-button--fab mdl-button--accent">
+      <i class="material-icons">archive</i>
     </button>
+  </a>
+  {% if can_add %}
+  <button id="showNewItem" class="mdl-button mdl-js-button mdl-button--fab mdl-button--colored">
+    <i class="material-icons">add</i>
+  </button>
+  {% endif %}
 </div>
-{% endif %}
 
 <br/>
 {% endblock %}
