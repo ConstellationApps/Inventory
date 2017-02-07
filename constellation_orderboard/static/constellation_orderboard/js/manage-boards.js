@@ -1,6 +1,7 @@
 /* global Handlebars componentHandler url_api_v1_board_list
-   url_view_board url_api_v1_board_archive url_api_v1_board_unarchive */
-/* exported archiveBoard unarchiveBoard */
+   url_view_board url_api_v1_board_archive url_api_v1_board_unarchive
+   url_board_edit */
+/* exported editBoard archiveBoard unarchiveBoard */
 
 /* Global board state */
 var boards_data;
@@ -18,8 +19,8 @@ $(document).ready(function(){
 /* Call APIs to get the JSON board_data */
 function getboard_data() {
   /* Get the list of stages */
+  boards_data = { active_boards: [], inactive_boards: [] };
   $.getJSON(url_api_v1_board_list, function(boards){
-    boards_data = { active_boards: [], inactive_boards: [] };
     for (var i = 0, len = boards.length; i < len; i++) {
       var board_array;
       if(boards[i].fields.archived == false) {
@@ -73,7 +74,7 @@ function archiveBoard(id) {
 
 /* edit a board */
 function editBoard(id) {
-    window.location.href = url_board_edit.replace(0, id);
+  window.location.href = url_board_edit.replace(0, id);
 }
 
 /* unarchive a board */
@@ -115,5 +116,8 @@ function addItem(event) {
       } else {
         message.MaterialSnackbar.showSnackbar({message: 'An error occured.'});
       }
+    })
+    .always(function() {
+      form_data.trigger('reset');
     });
 }

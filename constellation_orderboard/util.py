@@ -1,5 +1,6 @@
 from functools import wraps
 from django.core.exceptions import PermissionDenied
+from django.shortcuts import get_object_or_404
 from .models import Board
 
 
@@ -10,7 +11,7 @@ def board_permission(level):
     def decorator(view_function):
         @wraps(view_function)
         def _inner(request, board_id, *args, **kwargs):
-            board = Board.objects.get(pk=board_id)
+            board = get_object_or_404(Board, pk=board_id)
 
             if level == 'read':
                 group = list(set([board.readGroup,

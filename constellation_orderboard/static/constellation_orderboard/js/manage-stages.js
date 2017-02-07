@@ -19,8 +19,8 @@ $(document).ready(function(){
 /* Call APIs to get the JSON stage_data */
 function getstage_data() {
   /* Get the list of stages */
+  stages_data = {stages: []};
   $.getJSON(url_api_v1_stage_list, function(stages){
-    stages_data = {stages: []};
     for (var i = 0, len = stages.length; i < len; i++) {
       stages_data.stages[stages[i].fields.index] = {
         name: stages[i].fields.name,
@@ -144,5 +144,8 @@ function addItem(event) {
       } else {
         message.MaterialSnackbar.showSnackbar({message: 'An error occured.'});
       }
+    })
+    .always(function() {
+      form_data.trigger('reset');
     });
 }

@@ -33,8 +33,8 @@ $(document).ready(function(){
 /* Call APIs to get the JSON board_data */
 function getboard_data() {
   /* Get the list of stages */
+  board_data = {mdl_width: 12, stages: []};
   $.getJSON(url_api_v1_stage_list, function(stages){
-    board_data = {mdl_width: 12, stages: []};
     /* Sort stages by their index field */
     stages.sort(function(a, b) {
       return a.fields.index - b.fields.index;
@@ -79,6 +79,7 @@ function getboard_data() {
         } else {
           message.MaterialSnackbar.showSnackbar({message: 'An error occured.'});
         }
+        renderTemplate(board_data);
       });
   })
     .fail(function(jqXHR) {
@@ -88,6 +89,7 @@ function getboard_data() {
       } else {
         message.MaterialSnackbar.showSnackbar({message: 'An error occured.'});
       }
+      renderTemplate(board_data);
     });
 }
 
@@ -178,6 +180,9 @@ function addItem(event) {
       } else {
         message.MaterialSnackbar.showSnackbar({message: 'An error occured.'});
       }
+    })
+    .always(function() {
+      form_data.trigger('reset');
     });
 }
 
