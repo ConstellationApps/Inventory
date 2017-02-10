@@ -14,8 +14,8 @@ setup(
     description = 'Constellation Suite - Order Management',
     long_description = README,
     url = 'https://github.com/ConstellationApps/',
-    author = 'Constellation Dev',
-    author_email = 'null@example.com',
+    author = 'Constellation Developers',
+    author_email = 'bugs@constellationapps.org',
     install_requires=[
         'constellation_base',
     ],
@@ -23,10 +23,12 @@ setup(
         'Environment :: Web Environment',
         'Framework :: Django',
         'Intended Audience :: Developers',
-        'License :: OSI Approved :: ISC License',
+        'License :: OSI Approved :: ISC License (ISCL)',
         'Operating System :: OS Independent',
         'Programming Language :: Python',
         'Topic :: Internet :: WWW/HTTP',
-        'Topic :: Internet :: WWW/HTTP :: Dynamic Content'
+        'Topic :: Internet :: WWW/HTTP :: Dynamic Content',
+        'Topic :: Office/Business :: Financial :: Accounting',
+        'Development Status :: 4 - Beta'
     ]
 )
