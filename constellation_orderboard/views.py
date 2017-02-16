@@ -277,6 +277,7 @@ def api_v1_card_create(request):
         newCard = Card()
         newCard.name = cardForm.cleaned_data['name']
         newCard.quantity = cardForm.cleaned_data['quantity']
+        newCard.units = cardForm.cleaned_data['units']
         newCard.notes = cardForm.cleaned_data['notes']
         newCard.stage = cardForm.cleaned_data['stage']
         newCard.board = cardForm.cleaned_data['board']

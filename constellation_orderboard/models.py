@@ -5,7 +5,8 @@ from django.contrib.auth.models import Group
 class Card(models.Model):
     name = models.CharField(max_length=128)
     quantity = models.IntegerField(default=1)
-    notes = models.TextField()
+    units = models.CharField(max_length=128, blank=True)
+    notes = models.TextField(blank=True)
     stage = models.ForeignKey('Stage', blank=True, null=True)
     board = models.ForeignKey('Board', blank=True, null=True)
     archived = models.BooleanField(default=False)

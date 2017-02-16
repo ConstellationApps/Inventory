@@ -67,6 +67,7 @@ function getboard_data() {
           id: cards[i].pk,
           notes: cards[i].fields.notes,
           quantity: cards[i].fields.quantity,
+          units: cards[i].fields.units,
         });
         /* Set card's stage for easy look-up */
         card_map.set(cards[i].pk, stage_index);
@@ -170,6 +171,7 @@ function addItem(event) {
     card.name = response.fields.name;
     card.notes = response.fields.notes;
     card.quantity = response.fields.quantity;
+    card.units = response.fields.units;
     board_data.stages[0].cards.push(card);
     card_map.set(response.pk, 0);
     renderTemplate(board_data);

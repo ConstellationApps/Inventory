@@ -12,23 +12,27 @@
 
 {% block js %}
 <div id="message-toast" class="mdl-js-snackbar mdl-snackbar">
-  <div class="mdl-snackbar__text"></div>
-  <button class="mdl-snackbar__action" type="button"></button>
+    <div class="mdl-snackbar__text"></div>
+    <button class="mdl-snackbar__action" type="button"></button>
 </div>
 <dialog id="newItem" class="mdl-dialog">
     <h4 class="mdl-dialog__title">New Item</h4>
     <div class="mdl-dialog__content mdl-grid">
-        <form method="post" action="{% url 'api_v1_card_create' %}" id="newItemForm">
+        <form method="post" action="{% url 'api_v1_card_create' %}" id="newItemForm" class="mdl-grid">
             {% csrf_token %}
             {{ form.stage.as_hidden }}
             {{ form.board.as_hidden }}
-            <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label mdl-cell--12-col mdl-cell--5-col-tablet mdl-cell--bottom">
+            <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label mdl-cell--12-col mdl-cell--bottom">
                 {{ form.name }}
                 <label class="mdl-textfield__label" for="{{ form.name.id_for_label }}">Name</label>
             </div>
             <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label mdl-cell--12-col mdl-cell--3-col-tablet mdl-cell--bottom">
                 {{ form.quantity }}
                 <label class="mdl-textfield__label" for="{{ form.quantity.id_for_label }}">Quantity</label>
+            </div>
+            <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label mdl-cell--12-col mdl-cell--5-col-tablet mdl-cell--bottom">
+                {{ form.units }}
+                <label class="mdl-textfield__label" for="{{ form.units.id_for_label }}">Units</label>
             </div>
             <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label" style="width:100%">
                 {{ form.notes }}
@@ -72,7 +76,7 @@
         {{#each cards}}
             <div id="card_{{id}}" class="inventory-item mdl-card mdl-shadow--2dp mdl-color--accent mdl-color-text--white">
                 <div class="card_name mdl-card__title mdl-color-text--white">
-                    <span>{{name}}</span> <span id="card_{{id}}_quantity">({{quantity}})</span>
+                    <span>{{name}}</span>&nbsp;<span id="card_{{id}}_quantity">({{quantity}}{{# if units }} {{units}}{{/if}})</span>
                 </div>
                 <div class="mdl-card__supporting-text mdl-color-text--white">
                     <div id="card_{{id}}_notes" class="card_notes">{{notes}}</div>

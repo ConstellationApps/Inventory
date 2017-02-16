@@ -12,7 +12,7 @@ class CardForm(ModelForm):
 
     class Meta:
         model = Card
-        fields = ['name', 'quantity', 'notes', 'stage', 'board']
+        fields = ['name', 'quantity', 'units', 'notes', 'stage', 'board']
 
 class BoardForm(ModelForm):
     def __init__(self, *args, **kwargs):
