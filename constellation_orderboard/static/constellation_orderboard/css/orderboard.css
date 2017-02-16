@@ -43,7 +43,6 @@
     border: 0;
     cursor: pointer;
     padding: 0;
-    position: absolute;
 }
 
 .card_button:hover {
@@ -53,6 +52,7 @@
 
 .card_right_button {
     height: 100%;
+    position: absolute;
     right: 0;
     top: 0;
 }
@@ -60,12 +60,14 @@
 .card_left_button {
     height: 100%;
     left: 0;
+    position: absolute;
     top: 0;
 }
 
 .card_up_button {
     height: 20px;
     left: 0;
+    position: absolute;
     top: 0;
     width: 100%;
 }
@@ -74,13 +76,39 @@
     bottom: 0;
     height: 20px;
     left: 0;
+    position: absolute;
     width: 100%;
 }
 
-.card_close_button {
+.card_extra_buttons {
+    overflow: hidden;
     padding: 0 8px;
+    position: absolute;
     right: 0;
     top: 0;
+    -webkit-transition: width .5s;
+    transition: width .5s;
+    white-space: nowrap;
+    width: 14px;
+}
+
+.card_extra_buttons .card_extra_buttons_inner {
+    float: right;
+}
+
+.card_extra_buttons .card_extra_buttons_inner .card_button {
+    width: 20px;
+}
+
+
+.inventory-item:hover .card_extra_buttons {
+    -webkit-transition: width .5s;
+    transition: width .5s;
+    width: 40px;
+}
+
+.card_extra_buttons .card_button .material-icons {
+    font-size: 16px;
 }
 
 .stage:first-child .mdl-card__supporting-text .card_left_button,

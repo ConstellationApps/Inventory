@@ -63,6 +63,8 @@ urlpatterns = [
 
     url(r'^api/v1/card/create$', views.api_v1_card_create,
         name="api_v1_card_create"),
+    url(r'^api/v1/card/([\d]*)/edit$', views.api_v1_card_edit,
+        name="api_v1_card_edit"),
     url(r'^api/v1/card/([\d]*)/archive$', views.api_v1_card_archive,
         name="api_v1_card_archive"),
     url(r'^api/v1/card/([\d]*)/unarchive$', views.api_v1_card_unarchive,

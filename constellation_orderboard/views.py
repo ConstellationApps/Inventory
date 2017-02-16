@@ -49,14 +49,16 @@ def view_board(request, board_id):
     entire board with all the cards'''
     template_settings_object = GlobalTemplateSettings(allowBackground=False)
     template_settings = template_settings_object.settings_dict()
-    form = CardForm()
+    newForm = CardForm()
+    editForm = CardForm(prefix="edit")
 
     can_move = board_perms(request.user, 'move', board_id)
     can_add = board_perms(request.user, 'add', board_id)
     can_delete = board_perms(request.user, 'delete', board_id)
 
     return render(request, 'constellation_orderboard/board.html', {
-        'form': form,
+        'form': newForm,
+        'editForm': editForm,
         'id': board_id,
         'template_settings': template_settings,
         'can_move': can_move,
@@ -267,8 +269,8 @@ def api_v1_board_info(request, boardID):
 @login_required
 def api_v1_card_create(request):
     '''Creates a new card from POST data.  Takes in a CSRF token with the
-    data as well as card name, quantity, description, board reference, and
-    active state'''
+    data as well as card name, quantity, units, description, board reference,
+    and active state'''
     cardForm = CardForm(request.POST or None)
     if request.POST and cardForm.is_valid():
         if not board_perms(request.user, 'add',
@@ -290,6 +292,28 @@ def api_v1_card_create(request):
     else:
         return HttpResponseBadRequest("Invalid Form Data!")
 
+
+@login_required
+def api_v1_card_edit(request, cardID):
+    '''Edits an existing card from POST data.  Takes in a CSRF token with the
+    data as well as card name, quantity, units, and description'''
+    cardForm = CardForm(request.POST or None, prefix="edit")
+    if request.POST and cardForm.is_valid():
+        if not board_perms(request.user, 'add',
+                           cardForm.cleaned_data['board'].id):
+            return HttpResponseServerError("Permission Denied")
+        card = Card.objects.get(pk=cardID)
+        card.name = cardForm.cleaned_data['name']
+        card.quantity = cardForm.cleaned_data['quantity']
+        card.units = cardForm.cleaned_data['units']
+        card.notes = cardForm.cleaned_data['notes']
+        try:
+            card.save()
+            return HttpResponse(serializers.serialize('json', [card,]))
+        except:
+            return HttpResponseServerError("Could not create card at this time")
+    else:
+        return HttpResponseBadRequest("Invalid Form Data!")
 
 @login_required
 def api_v1_card_archive(request, cardID):

@@ -1,10 +1,12 @@
 /* global Handlebars componentHandler board_id url_api_v1_stage_list
 url_api_v1_board_active_cards url_api_v1_card_move_left
-url_api_v1_card_move_right url_api_v1_card_archive stage_form_id
-stage_board_id dialogPolyfill */
-/* exported moveItem deleteItem restoreItem addItem */
+url_api_v1_card_move_right url_api_v1_card_archive url_api_v1_card_edit
+stage_form_id edit_board_id edit_name_id edit_quantity_id edit_units_id
+edit_notes_id new_board_id dialogPolyfill */
+/* exported moveItem deleteItem editItem restoreItem addItem */
 
-var dialog = document.querySelector('#newItem');
+var newDialog = document.querySelector('#newItem');
+var editDialog = document.querySelector('#editItem');
 var message = document.querySelector('#message-toast');
 
 /* Global board state */
@@ -20,11 +22,13 @@ $(document).ready(function(){
 
   /* Register the dialog polyfill for most browsers */
   if (typeof(dialogPolyfill) != 'undefined') {
-    dialogPolyfill.registerDialog(dialog);
+    dialogPolyfill.registerDialog(newDialog);
+    dialogPolyfill.registerDialog(editDialog);
   }
 
   /* Set the hidden board id in the form */
-  $('#' + stage_board_id).val(board_id);
+  $('#' + new_board_id).val(board_id);
+  $('#' + edit_board_id).val(board_id);
 
   /* Start templating */
   getboard_data();
@@ -159,11 +163,19 @@ function deleteItem(id) {
     });
 }
 
-$('#newItemForm').on('submit', addItem);
+$('#newItemForm').on('submit', function(event){
+  addItem(event);
+});
+
+$('#editItemForm').on('submit', function(event){
+  addItem(event);
+});
+
 function addItem(event) {
   event.preventDefault();
-  dialog.close();
-  var form_data = $('#newItemForm');
+  if (newDialog.open) { newDialog.close(); }
+  if (editDialog.open) { editDialog.close(); }
+  var form_data = $(event.target);
   $.post(event.target.action, form_data.serialize(), function(response) {
     var card = {};
     response = response[0];
@@ -172,8 +184,21 @@ function addItem(event) {
     card.notes = response.fields.notes;
     card.quantity = response.fields.quantity;
     card.units = response.fields.units;
-    board_data.stages[0].cards.push(card);
-    card_map.set(response.pk, 0);
+
+    /* If we're editing an existing card */
+    var card_id = form_data.attr('name');
+    if (card_id) {
+      card_id = parseInt(card_id);
+      var card_stage = card_map.get(card_id);
+      var card_index = board_data.stages[card_stage].cards.findIndex(
+        function(element){
+          return element.id == card_id;
+        });
+      board_data.stages[card_stage].cards[card_index] = card;
+    } else {
+      board_data.stages[0].cards.push(card);
+      card_map.set(response.pk, 0);
+    }
     renderTemplate(board_data);
   }, 'json')
     .fail(function(jqXHR) {
@@ -188,27 +213,58 @@ function addItem(event) {
     });
 }
 
-$('#showNewItem').click(openDialog);
-function openDialog() {
-  dialog.style.opacity = 0;
-  dialog.style.transition = 'all 250ms ease';
-  dialog.showModal();
-  dialog.style.opacity = 1;
+$('#showNewItem').on('click', function(){
+  openDialog(newDialog);
+});
+
+function openDialog(myDialog) {
+  myDialog.style.opacity = 0;
+  myDialog.style.transition = 'all 250ms ease';
+  myDialog.showModal();
+  myDialog.style.opacity = 1;
 }
 
 document.body.addEventListener('keydown', function(e) {
-  if (e.keyCode == 27)
-    dialog.close();
+  if (e.keyCode == 27) {
+    if (newDialog.open) { newDialog.close(); }
+    if (editDialog.open) { editDialog.close(); }
+  }
 });
 
-function clickedInDialog(mouseEvent) {
+function clickedInDialog(mouseEvent, dialog) {
   var rect = dialog.getBoundingClientRect();
   return rect.top <= mouseEvent.clientY && mouseEvent.clientY <= rect.top + rect.height
     && rect.left <= mouseEvent.clientX && mouseEvent.clientX <= rect.left + rect.width;
 }
 
 $('body').on('click', 'dialog', function(e) {
-  if($('dialog:visible').length && !clickedInDialog(e)) {
-    dialog.close();
+  if($('dialog:visible').length && !clickedInDialog(e, newDialog) && !clickedInDialog(e, editDialog)) {
+    if (newDialog.open) { newDialog.close(); }
+    if (editDialog.open) { editDialog.close(); }
   }
 });
+
+function editItem(id) {
+  $('#editItemForm').attr('action', url_api_v1_card_edit.replace(0, id));
+  $('#editItemForm').attr('name', id);    // We'll use this later to get the card
+  var card_stage = card_map.get(id);
+  var card_index = board_data.stages[card_stage].cards.findIndex(
+    function(element){
+      return element.id == id;
+    });
+  var card = board_data.stages[card_stage].cards[card_index];
+
+  /* Auto-fill form data */
+  $('#' + edit_name_id).val(card.name);
+  $('#' + edit_quantity_id).val(card.quantity);
+  $('#' + edit_units_id).val(card.units);
+  $('#' + edit_notes_id).val(card.notes);
+  $('#' + edit_name_id).val(card.name);
+
+  /* Make MDL format the textboxes as filled */
+  $('.mdl-js-textfield').each(function(){
+    this.MaterialTextfield.checkDirty();
+  });
+
+  openDialog(editDialog);
+}

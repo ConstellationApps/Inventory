@@ -46,6 +46,37 @@
         </form>
     </div>
 </dialog>
+<dialog id="editItem" class="mdl-dialog">
+    <h4 class="mdl-dialog__title">Edit Item</h4>
+    <div class="mdl-dialog__content mdl-grid">
+        <form method="post" action="{% url 'api_v1_card_edit' 0 %}" id="editItemForm" class="mdl-grid" name="0">
+            {% csrf_token %}
+            {{ editForm.stage.as_hidden }}
+            {{ editForm.board.as_hidden }}
+            <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label mdl-cell--12-col mdl-cell--bottom">
+                {{ editForm.name }}
+                <label class="mdl-textfield__label" for="{{ editForm.name.id_for_label }}">Name</label>
+            </div>
+            <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label mdl-cell--12-col mdl-cell--3-col-tablet mdl-cell--bottom">
+                {{ editForm.quantity }}
+                <label class="mdl-textfield__label" for="{{ editForm.quantity.id_for_label }}">Quantity</label>
+            </div>
+            <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label mdl-cell--12-col mdl-cell--5-col-tablet mdl-cell--bottom">
+                {{ editForm.units }}
+                <label class="mdl-textfield__label" for="{{ editForm.units.id_for_label }}">Units</label>
+            </div>
+            <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label" style="width:100%">
+                {{ editForm.notes }}
+                <label class="mdl-textfield__label" for="{{ editForm.notes.id_for_label }}">Description</label>
+            </div>
+            <div class="mdl-dialog__actions">
+                <button class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--accent">
+                    Submit Item <i class="material-icons right">done</i>
+                </button>
+            </div>
+        </form>
+    </div>
+</dialog>
 {{ block.super }}
 {% load static %}
 <script src="https://cdnjs.cloudflare.com/ajax/libs/dialog-polyfill/0.4.4/dialog-polyfill.min.js"></script>
@@ -57,8 +88,14 @@
     var url_api_v1_card_move_left = "{% url 'api_v1_card_move_left' 0 %}";
     var url_api_v1_card_move_right = "{% url 'api_v1_card_move_right' 0 %}";
     var url_api_v1_card_archive = "{% url 'api_v1_card_archive' 0 %}";
+    var url_api_v1_card_edit = "{% url 'api_v1_card_edit' 0 %}";
     var stage_form_id="{{ form.stage.id_for_label }}";
-    var stage_board_id="{{ form.board.id_for_label }}";
+    var new_board_id="{{ form.board.id_for_label }}";
+    var edit_board_id="{{ editForm.board.id_for_label }}";
+    var edit_name_id="{{ editForm.name.id_for_label }}";
+    var edit_quantity_id="{{ editForm.quantity.id_for_label }}";
+    var edit_units_id="{{ editForm.units.id_for_label }}";
+    var edit_notes_id="{{ editForm.notes.id_for_label }}";
 </script>
 
 <script src="{% static 'constellation_orderboard/js/orderboard.js' %}"></script>
@@ -97,11 +134,20 @@
                     </button>
 {% endverbatim %}
 {% endif %}
+  <div class="card_extra_buttons"><div class="card_extra_buttons_inner">
+{% if can_add %}
+{% verbatim %}
+    <span onclick="editItem({{id}})" id="card_{{id}}_edit_button" class="card_button card_edit_button">
+      <i class="material-icons">mode_edit</i>
+    </span>
+{% endverbatim %}
+{% endif %}
 {% if can_delete %}
 {% verbatim %}
-                    <div onclick="deleteItem({{id}})" id="card_{{id}}_close_button" class="card_button card_close_button">&times;</div>
+                    <span onclick="deleteItem({{id}})" id="card_{{id}}_close_button" class="card_button card_close_button"><i class="material-icons">close</i></span>
 {% endverbatim %}
-                    {% endif %}
+{% endif %}
+  </div></div>
 {% verbatim %}
                     <div id="card_{{id}}_progress" class="progress"> <div class="mdl-progress mdl-js-progress mdl-progress__indeterminate"></div></div>
                 </div>
