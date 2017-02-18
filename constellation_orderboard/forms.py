@@ -1,7 +1,8 @@
+from django.forms import ModelForm
+
 from .models import Card
 from .models import Board
 from .models import Stage
-from django.forms import ModelForm
 
 class CardForm(ModelForm):
     def __init__(self, *args, **kwargs):
@@ -12,7 +13,7 @@ class CardForm(ModelForm):
 
     class Meta:
         model = Card
-        fields = ['name', 'quantity', 'units', 'notes', 'stage', 'board']
+        fields = ['name', 'quantity', 'units', 'notes', 'stage']
 
 class BoardForm(ModelForm):
     def __init__(self, *args, **kwargs):
@@ -23,8 +24,7 @@ class BoardForm(ModelForm):
 
     class Meta:
         model = Board
-        fields = ['name', 'desc', 'archived', 'readGroup', 'manageGroup',
-                  'addGroup', 'deleteGroup', 'moveGroup']
+        fields = ['name', 'desc', 'archived']
 
 class StageForm(ModelForm):
     def __init__(self, *args, **kwargs):

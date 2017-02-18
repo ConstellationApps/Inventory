@@ -1,5 +1,6 @@
 import json
 
+from django.contrib.auth.models import Group
 from django.shortcuts import render
 from django.shortcuts import get_object_or_404
 from django.http import HttpResponse
@@ -8,10 +9,13 @@ from django.http import HttpResponseBadRequest
 from django.http import HttpResponseServerError
 from django.core import serializers
 from django.urls import reverse
-from django.contrib.auth.decorators import (
-    login_required,
-    permission_required
+from django.contrib.auth.decorators import login_required
+
+from guardian.decorators import (
+    permission_required,
+    permission_required_or_403,
 )
+from guardian.shortcuts import get_objects_for_user
 
 from constellation_base.models import GlobalTemplateSettings
 
@@ -22,8 +26,6 @@ from .forms import BoardForm
 from .models import Card
 from .models import Stage
 from .models import Board
-
-from .util import board_permission, board_perms
 
 
 # =============================================================================
@@ -43,7 +45,8 @@ def view_list(request):
 
 
 @login_required
-@board_permission('read')
+@permission_required('constellation_orderboard.action_read_board',
+                     (Board, 'id', 'board_id'))
 def view_board(request, board_id):
     '''Return the base template that will call the API to display the
     entire board with all the cards'''
@@ -51,24 +54,20 @@ def view_board(request, board_id):
     template_settings = template_settings_object.settings_dict()
     newForm = CardForm()
     editForm = CardForm(prefix="edit")
-
-    can_move = board_perms(request.user, 'move', board_id)
-    can_add = board_perms(request.user, 'add', board_id)
-    can_delete = board_perms(request.user, 'delete', board_id)
+    board = Board.objects.get(pk=board_id)
 
     return render(request, 'constellation_orderboard/board.html', {
         'form': newForm,
         'editForm': editForm,
         'id': board_id,
         'template_settings': template_settings,
-        'can_move': can_move,
-        'can_add': can_add,
-        'can_delete': can_delete,
+        'board': board,
     })
 
 
 @login_required
-@board_permission('read')
+@permission_required('constellation_orderboard.action_archive_cards',
+                     (Board, 'id', 'board_id'))
 def view_board_archive(request, board_id):
     '''Return the base template that will call the API to display the
     board's archived cards'''
@@ -86,34 +85,40 @@ def view_board_archive(request, board_id):
 
 
 @login_required
-@permission_required('constellation_orderboard.create_board')
+@permission_required('constellation_orderboard.add_board')
 def manage_boards(request):
     template_settings_object = GlobalTemplateSettings(allowBackground=False)
     template_settings = template_settings_object.settings_dict()
     boardForm = BoardForm()
+    groups = [(g.name, g.pk) for g in Group.objects.all()]
 
     return render(request, 'constellation_orderboard/manage-boards.html', {
         'form': boardForm,
         'template_settings': template_settings,
+        'groups': groups,
     })
 
 
 @login_required
-@board_permission('manage')
+@permission_required('constellation_orderboard.action_manage_board',
+                     (Board, 'id', 'board_id'))
 def manage_board_edit(request, board_id):
     template_settings_object = GlobalTemplateSettings(allowBackground=False)
     template_settings = template_settings_object.settings_dict()
     board = Board.objects.get(pk=board_id)
     boardForm = BoardForm(instance=board)
+    groups = board.get_board_permissions()
+
     return render(request, 'constellation_orderboard/edit-board.html', {
         'form': boardForm,
         'board_id': board_id,
         'template_settings': template_settings,
+        'groups': groups,
     })
 
 
 @login_required
-@permission_required('constellation_orderboard.modify_stages')
+@permission_required('constellation_orderboard.change_stage')
 def manage_stages(request):
     template_settings_object = GlobalTemplateSettings(allowBackground=False)
     template_settings = template_settings_object.settings_dict()
@@ -138,10 +143,10 @@ def manage_stages(request):
 @login_required
 def api_v1_board_list(request):
     '''List all boards that a user is allowed to view'''
-    if not request.user.is_superuser:
-        boardObjects = Board.objects.filter(pk__in=request.user.groups.all())
-    else:
-        boardObjects = Board.objects.all()
+    boardObjects = get_objects_for_user(
+        request.user,
+        'constellation_orderboard.action_read_board',
+        Board)
     if boardObjects:
         boards = serializers.serialize('json', boardObjects)
         return HttpResponse(boards)
@@ -150,7 +155,7 @@ def api_v1_board_list(request):
 
 
 @login_required
-@permission_required('constellation_orderboard.create_board')
+@permission_required_or_403('constellation_orderboard.add_board')
 def api_v1_board_create(request):
     '''Create a board, takes a post with a CSRF token, name, and
     description and returns a json object containing the status which will
@@ -160,14 +165,10 @@ def api_v1_board_create(request):
         newBoard = Board()
         newBoard.name = boardForm.cleaned_data['name']
         newBoard.desc = boardForm.cleaned_data['desc']
-        newBoard.readGroup = boardForm.cleaned_data['readGroup']
-        newBoard.addGroup = boardForm.cleaned_data['addGroup']
-        newBoard.moveGroup = boardForm.cleaned_data['moveGroup']
-        newBoard.deleteGroup = boardForm.cleaned_data['deleteGroup']
-        newBoard.manageGroup = boardForm.cleaned_data['manageGroup']
         try:
             newBoard.save()
-            return HttpResponse(serializers.serialize('json', [newBoard,]))
+            newBoard.set_board_permissions(request.POST.items())
+            return HttpResponse(serializers.serialize('json', [newBoard, ]))
         except:
             return HttpResponseServerError("Could not save board at this time")
     else:
@@ -175,61 +176,65 @@ def api_v1_board_create(request):
 
 
 @login_required
-@board_permission('manage')
-def api_v1_board_update(request, boardID):
+@permission_required_or_403('constellation_orderboard.action_manage_board',
+                            (Board, 'id', 'board_id'))
+def api_v1_board_update(request, board_id):
     '''Update a board, based upon the form data contained in request'''
     boardForm = BoardForm(request.POST or None)
     if request.POST and boardForm.is_valid():
+
         try:
-            board = Board.objects.get(pk=boardID)
+            board = Board.objects.get(pk=board_id)
+            board.set_board_permissions(request.POST.items())
             newName = boardForm.cleaned_data['name']
             newDesc = boardForm.cleaned_data['desc']
+
             board.name = newName
             board.desc = newDesc
-            board.readGroup = boardForm.cleaned_data['readGroup']
-            board.addGroup = boardForm.cleaned_data['addGroup']
-            board.moveGroup = boardForm.cleaned_data['moveGroup']
-            board.deleteGroup = boardForm.cleaned_data['deleteGroup']
-            board.manageGroup = boardForm.cleaned_data['manageGroup']
             board.save()
-            return HttpResponse(json.dumps({"board" : reverse("view_board", args=[boardID,])}))
-        except:
+            return HttpResponse(json.dumps({
+                "board": reverse("view_board", args=[board_id, ])
+            }))
+        except AttributeError:
             return HttpResponseServerError("Invalid board ID")
     else:
         return HttpResponseBadRequest("Invalid Form Data!")
 
 
 @login_required
-@board_permission('manage')
-def api_v1_board_archive(request, boardID):
+@permission_required_or_403('constellation_orderboard.action_manage_board',
+                            (Board, 'id', 'board_id'))
+def api_v1_board_archive(request, board_id):
     '''archives a board, returns status object'''
-    board = Board.objects.get(pk=boardID)
+    board = Board.objects.get(pk=board_id)
     board.archived = True
     try:
         board.save()
         return HttpResponse("Board Archived")
     except:
-        return HttpResponseServerError("Board could not be archived at this time")
+        return HttpResponseServerError("Board could not be archived")
 
 
 @login_required
-@board_permission('manage')
-def api_v1_board_unarchive(request, boardID):
+@permission_required_or_403('constellation_orderboard.action_manage_board',
+                            (Board, 'id', 'board_id'))
+def api_v1_board_unarchive(request, board_id):
     '''unarchives a board, returns status object'''
-    board = Board.objects.get(pk=boardID)
+    board = Board.objects.get(pk=board_id)
     board.archived = False
     try:
         board.save()
         return HttpResponse("Board Un-Archived")
     except:
-        return HttpResponseServerError("Board could not be un-archived at this time")
+        return HttpResponseServerError("Board could not be un-archived")
 
 
 @login_required
-@board_permission('read')
-def api_v1_board_active_cards(request, boardID):
+@permission_required_or_403('constellation_orderboard.action_read_board',
+                            (Board, 'id', 'board_id'))
+def api_v1_board_active_cards(request, board_id):
     '''Retrieve all active cards for the stated board'''
-    cardObjects = Card.objects.filter(board=Board.objects.get(pk=boardID),
+    cardObjects = Card.objects.filter(board=Board.objects.get(pk=board_id),
                                       archived=False)
     if cardObjects:
         cards = serializers.serialize('json', cardObjects)
@@ -239,10 +244,11 @@ def api_v1_board_active_cards(request, boardID):
 
 
 @login_required
-@board_permission('read')
-def api_v1_board_archived_cards(request, boardID):
+@permission_required_or_403('constellation_orderboard.action_read_board',
+                            (Board, 'id', 'board_id'))
+def api_v1_board_archived_cards(request, board_id):
     '''Retrieve all archived cards for the stated board'''
-    cardObjects = Card.objects.filter(board=Board.objects.get(pk=boardID),
+    cardObjects = Card.objects.filter(board=Board.objects.get(pk=board_id),
                                       archived=True)
     if cardObjects:
         cards = serializers.serialize('json', cardObjects)
@@ -252,12 +258,13 @@ def api_v1_board_archived_cards(request, boardID):
 
 
 @login_required
-@board_permission('read')
-def api_v1_board_info(request, boardID):
+@permission_required_or_403('constellation_orderboard.action_read_board',
+                            (Board, 'id', 'board_id'))
+def api_v1_board_info(request, board_id):
     '''Retrieve the title and description for the stated board'''
     try:
-        board = Board.objects.get(pk=boardID)
-        response = json.dumps({"title" : board.name, "desc" : board.desc})
+        board = Board.objects.get(pk=board_id)
+        response = json.dumps({"title": board.name, "desc": board.desc})
         return HttpResponse(response)
     except:
         return HttpResponseNotFound("No board with given ID found")
@@ -267,95 +274,90 @@ def api_v1_board_info(request, boardID):
 # API Functions related to Card Operations
 # -----------------------------------------------------------------------------
 @login_required
-def api_v1_card_create(request):
+@permission_required_or_403('constellation_orderboard.action_add_cards',
+                            (Board, 'id', 'board_id'))
+def api_v1_card_create(request, board_id):
     '''Creates a new card from POST data.  Takes in a CSRF token with the
     data as well as card name, quantity, units, description, board reference,
     and active state'''
     cardForm = CardForm(request.POST or None)
     if request.POST and cardForm.is_valid():
-        if not board_perms(request.user, 'add',
-                           cardForm.cleaned_data['board'].id):
-            return HttpResponseServerError("Permission Denied")
         newCard = Card()
         newCard.name = cardForm.cleaned_data['name']
         newCard.quantity = cardForm.cleaned_data['quantity']
         newCard.units = cardForm.cleaned_data['units']
         newCard.notes = cardForm.cleaned_data['notes']
         newCard.stage = cardForm.cleaned_data['stage']
-        newCard.board = cardForm.cleaned_data['board']
+        newCard.board = get_object_or_404(Board, id=board_id)
         newCard.archived = False
         try:
             newCard.save()
-            return HttpResponse(serializers.serialize('json', [newCard,]))
+            return HttpResponse(serializers.serialize('json', [newCard, ]))
         except:
-            return HttpResponseServerError("Could not create card at this time")
+            return HttpResponseServerError("Could not create card")
     else:
         return HttpResponseBadRequest("Invalid Form Data!")
 
 
 @login_required
-def api_v1_card_edit(request, cardID):
+@permission_required_or_403('constellation_orderboard.action_add_cards',
+                            (Board, 'pk', 'board_id'))
+def api_v1_card_edit(request, board_id, card_id):
     '''Edits an existing card from POST data.  Takes in a CSRF token with the
     data as well as card name, quantity, units, and description'''
     cardForm = CardForm(request.POST or None, prefix="edit")
     if request.POST and cardForm.is_valid():
-        if not board_perms(request.user, 'add',
-                           cardForm.cleaned_data['board'].id):
-            return HttpResponseServerError("Permission Denied")
-        card = Card.objects.get(pk=cardID)
+        card = Card.objects.get(pk=card_id)
         card.name = cardForm.cleaned_data['name']
         card.quantity = cardForm.cleaned_data['quantity']
         card.units = cardForm.cleaned_data['units']
         card.notes = cardForm.cleaned_data['notes']
         try:
             card.save()
-            return HttpResponse(serializers.serialize('json', [card,]))
+            return HttpResponse(serializers.serialize('json', [card, ]))
         except:
-            return HttpResponseServerError("Could not create card at this time")
+            return HttpResponseServerError("Could not create card")
     else:
         return HttpResponseBadRequest("Invalid Form Data!")
 
-@login_required
-def api_v1_card_archive(request, cardID):
-    '''Archive a card identified by the given primary key'''
-    card = Card.objects.get(pk=cardID)
 
-    if not board_perms(request.user, 'move',
-                       card.board.id):
-        return HttpResponseServerError("Permission Denied")
+@login_required
+@permission_required_or_403('constellation_orderboard.action_archive_cards',
+                            (Board, 'pk', 'board_id'))
+def api_v1_card_archive(request, board_id, card_id):
+    '''Archive a card identified by the given primary key'''
+    card = Card.objects.get(pk=card_id)
     card.archived = True
     try:
         card.save()
         return HttpResponse("Card successfully archived")
     except:
-        return HttpResponseServerError("Card could not be archived at this time")
+        return HttpResponseServerError("Card could not be archived")
 
 
 @login_required
-def api_v1_card_unarchive(request, cardID):
+@permission_required_or_403('constellation_orderboard.action_archive_cards',
+                            (Board, 'pk', 'board_id'))
+def api_v1_card_unarchive(request, board_id, card_id):
     '''Unarchive a card identified by the given primary key'''
-    card = Card.objects.get(pk=cardID)
-    if not board_perms(request.user, 'move',
-                       card.board.id):
-        return HttpResponseServerError("Permission Denied")
+    card = Card.objects.get(pk=card_id)
     card.archived = False
     try:
         card.save()
         return HttpResponse("Card successfully un-archived")
     except:
-        return HttpResponseServerError("Card could not be un-archived at this time")
+        return HttpResponseServerError("Card could not be un-archived")
 
 
 @login_required
-def api_v1_card_move_right(request, cardID):
+@permission_required_or_403('constellation_orderboard.action_move_cards',
+                            (Board, 'pk', 'board_id'))
+def api_v1_card_move_right(request, board_id, card_id):
     '''Move a card to the next stage to the left'''
     stages = list(Stage.objects.filter(archived=False))
     stages.sort(key=lambda x: x.index)
 
-    card = get_object_or_404(Card, pk=cardID)
-    if not board_perms(request.user, 'move',
-                       card.board.id):
-        return HttpResponseServerError("Permission Denied")
+    card = get_object_or_404(Card, pk=card_id)
     stageID = stages.index(card.stage)
 
     try:
@@ -372,15 +374,14 @@ def api_v1_card_move_right(request, cardID):
 
 
 @login_required
-def api_v1_card_move_left(request, cardID):
+@permission_required_or_403('constellation_orderboard.action_move_cards',
+                            (Board, 'pk', 'board_id'))
+def api_v1_card_move_left(request, board_id, card_id):
     '''Move a card to the next stage to the left'''
     stages = list(Stage.objects.filter(archived=False))
     stages.sort(key=lambda x: x.index)
 
-    card = get_object_or_404(Card, pk=cardID)
-    if not board_perms(request.user, 'move',
-                       card.board.id):
-        return HttpResponseServerError("Permission Denied")
+    card = get_object_or_404(Card, pk=card_id)
     stageID = stages.index(card.stage)
 
     try:
@@ -415,7 +416,8 @@ def api_v1_stage_list(request):
 
 
 @login_required
-@permission_required('constellation_orderboard.modify_stages', raise_exception=True)
+@permission_required_or_403('constellation_orderboard.modify_stages',
+                            raise_exception=True)
 def api_v1_stage_create(request):
     '''Creates a new stage from POST data.  Takes in a CSRF token with the
     data as well as stage name, quantity, description, board reference, and
@@ -428,14 +430,15 @@ def api_v1_stage_create(request):
         newStage.archived = False
         try:
             newStage.save()
-            return HttpResponse(serializers.serialize('json', [newStage,]))
+            return HttpResponse(serializers.serialize('json', [newStage, ]))
         except:
-            return HttpResponseServerError("Stage could not be created at this time")
+            return HttpResponseServerError("Stage could not be created")
     else:
         return HttpResponseBadRequest("Invalid Form Data!")
 
 
-@permission_required('constellation_orderboard.modify_stages', raise_exception=True)
+@permission_required_or_403('constellation_orderboard.modify_stages',
+                            raise_exception=True)
 def api_v1_stage_archive(request, stageID):
     '''Archive a stage identified by the given primary key'''
     stage = Stage.objects.get(pk=stageID)
@@ -444,10 +447,11 @@ def api_v1_stage_archive(request, stageID):
         stage.save()
         return HttpResponse("Stage successfully archived")
     except:
-        return HttpResponseServerError("Stage could not be archived at this time")
+        return HttpResponseServerError("Stage could not be archived")
 
 
-@permission_required('constellation_orderboard.modify_stages', raise_exception=True)
+@permission_required_or_403('constellation_orderboard.modify_stages',
+                            raise_exception=True)
 def api_v1_stage_unarchive(request, stageID):
     '''Unarchive a stage identified by the given primary key'''
     stage = Stage.objects.get(pk=stageID)
@@ -459,7 +463,8 @@ def api_v1_stage_unarchive(request, stageID):
         return HttpResponse("Stage could not be un-archived at this time")
 
 
-@permission_required('constellation_orderboard.modify_stages', raise_exception=True)
+@permission_required_or_403('constellation_orderboard.modify_stages',
+                            raise_exception=True)
 def api_v1_stage_move_left(request, stageID):
     '''Move a stage to the left'''
     stageCurrent = Stage.objects.get(pk=stageID)
@@ -469,12 +474,13 @@ def api_v1_stage_move_left(request, stageID):
             stageCurrent.swap(stageLeft)
             return HttpResponse("Stage successfully moved")
         except:
-            return HttpResponseServerError("Stage could not be moved at this time")
+            return HttpResponseServerError("Stage could not be moved")
     else:
         return HttpResponseBadRequest("Stage cannot be moved")
 
 
-@permission_required('constellation_orderboard.modify_stages', raise_exception=True)
+@permission_required_or_403('constellation_orderboard.modify_stages',
+                            raise_exception=True)
 def api_v1_stage_move_right(request, stageID):
     '''Move a stage to the right'''
     stageCurrent = Stage.objects.get(pk=stageID)
@@ -488,6 +494,7 @@ def api_v1_stage_move_right(request, stageID):
 # -----------------------------------------------------------------------------
 # Dashboard
 # -----------------------------------------------------------------------------
+
 
 @login_required
 def view_dashboard(request):

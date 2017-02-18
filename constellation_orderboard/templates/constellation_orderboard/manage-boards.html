@@ -11,8 +11,8 @@
 
 {% block js %}
 <div id="message-toast" class="mdl-js-snackbar mdl-snackbar">
-  <div class="mdl-snackbar__text"></div>
-  <button class="mdl-snackbar__action" type="button"></button>
+   <div class="mdl-snackbar__text"></div>
+   <button class="mdl-snackbar__action" type="button"></button>
 </div>
 {{ block.super }}
 {% load static %}
@@ -75,55 +75,54 @@
     {% endverbatim %}
 </div>
 <div id="formCard" class="form-card mdl-card mdl-cell--8-col mdl-cell--2-offset-desktop mdl-shadow--2dp mdl-grid">
-    <div class="mdl-card__title">
-        <h2 class="mdl-card__title-text">New Board</h2>
-    </div>
-    <div class="mdl-card__supporting-text">
-        <form method="post" action="{% url 'api_v1_board_create' %}" id="newBoardForm" class="mdl-cell--2-offset-desktop mdl-cell--8-col">
-            {% csrf_token %}
-            {{ form.active.as_hidden }}
-            <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label mdl-cell--12-col mdl-cell--bottom">
-                {{ form.name }}
-                <label class="mdl-textfield__label" for="{{ form.name.id_for_label }}">Name</label>
-            </div>
-            <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label mdl-cell--12-col mdl-cell--bottom">
-                {{ form.desc }}
-                <label class="mdl-textfield__label" for="{{ form.desc.id_for_label }}">Description</label>
-            </div>
-
-            <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
-              {{ form.readGroup }}
-              <label for="{{ form.readGroup.id_for_label }}" class="mdl-textfield__label">Read Group</label>
-            </div>
-
-            <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
-              {{ form.addGroup }}
-              <label for="{{ form.addGroup.id_for_label }}" class="mdl-textfield__label">Add Group</label>
-            </div>
-
-            <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
-              {{ form.moveGroup }}
-              <label for="{{ form.moveGroup.id_for_label }}" class="mdl-textfield__label">Move Group</label>
-            </div>
-
-            <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
-              {{ form.deleteGroup }}
-              <label for="{{ form.deleteGroup.id_for_label }}" class="mdl-textfield__label">Delete Group</label>
-            </div>
-
-
-            <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
-              {{ form.manageGroup }}
-              <label for="{{ form.mangeGroup.id_for_label }}" class="mdl-textfield__label">Manage Group</label>
-            </div>
-
+   <div class="mdl-card__title">
+      <h2 class="mdl-card__title-text">New Board</h2>
+   </div>
+   <div class="mdl-card__supporting-text">
+      <form method="post" action="{% url 'api_v1_board_create' %}" id="newBoardForm" class="mdl-cell--12-col">
+         {% csrf_token %}
+         {{ form.active.as_hidden }}
+         <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label mdl-cell--12-col mdl-cell--bottom">
+            {{ form.name }}
+            <label class="mdl-textfield__label" for="{{ form.name.id_for_label }}">Name</label>
+         </div>
+         <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label mdl-cell--12-col mdl-cell--bottom">
+            {{ form.desc }}
+            <label class="mdl-textfield__label" for="{{ form.desc.id_for_label }}">Description</label>
+         </div>
+         <ul class="demo-list-control mdl-list">
+            <li class="mdl-list__item">
+               <span id="group-header" class="mdl-cell--4-col">Group</span>
+               <span class="mdl-cell--12-col permissions-header">
+                  <i id="perm-none" class="material-icons perm-icon">not_interested</i>
+                  <div class="mdl-tooltip" for="perm-none">No Permissions</div>
+                  <i id="perm-view" class="material-icons perm-icon">visibility</i>
+                  <div class="mdl-tooltip" for="perm-view">View Board</div>
+                  <i id="perm-add" class="material-icons perm-icon">add_box</i>
+                  <div class="mdl-tooltip" for="perm-add">Add Cards</div>
+                  <i id="perm-move" class="material-icons perm-icon">swap_horiz</i>
+                  <div class="mdl-tooltip" for="perm-move">Move Cards</div>
+                  <i id="perm-archive" class="material-icons perm-icon">archive</i>
+                  <div class="mdl-tooltip" for="perm-archive">Archive Cards</div>
+                  <i id="perm-manage" class="material-icons perm-icon">settings</i>
+                  <div class="mdl-tooltip" for="perm-manage">Manage Cards</div>
+               </span>
+               {% for group in groups %}
+               <li class="mdl-list__item">
+                  <span id="group-{{ group.1 }}" class="mdl-cell--4-col">{{ group.0 }}</span>
+                  <span class="mdl-cell--12-col">
+                     <input id="slider-{{ group.1 }}" name="group-{{ group.1 }}" class="mdl-slider mdl-js-slider group-permission" type="range" min="1" max="6" steps="1" value="1">
+                  </span>
+               </li>
+               {% endfor %}
+            </ul>
             <div class="mdl-card__actions">
-              <div class="mdl-layout-spacer"></div>
-              <button class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--primary">
-                Create Board <i class="material-icons right">done</i>
-              </button>
+               <div class="mdl-layout-spacer"></div>
+               <button class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--primary">
+                  Create Board <i class="material-icons right">done</i>
+               </button>
             </div>
-          </form>
-        </div>
+         </form>
       </div>
-      {% endblock %}
+   </div>
+   {% endblock %}

@@ -1,8 +1,8 @@
-/* global Handlebars componentHandler board_id url_api_v1_stage_list
+/* global Handlebars componentHandler url_api_v1_stage_list
 url_api_v1_board_active_cards url_api_v1_card_move_left
 url_api_v1_card_move_right url_api_v1_card_archive url_api_v1_card_edit
-stage_form_id edit_board_id edit_name_id edit_quantity_id edit_units_id
-edit_notes_id new_board_id dialogPolyfill */
+stage_form_id edit_name_id edit_quantity_id edit_units_id
+edit_notes_id dialogPolyfill */
 /* exported moveItem deleteItem editItem restoreItem addItem */
 
 var newDialog = document.querySelector('#newItem');
@@ -25,10 +25,6 @@ $(document).ready(function(){
     dialogPolyfill.registerDialog(newDialog);
     dialogPolyfill.registerDialog(editDialog);
   }
-
-  /* Set the hidden board id in the form */
-  $('#' + new_board_id).val(board_id);
-  $('#' + edit_board_id).val(board_id);
 
   /* Start templating */
   getboard_data();
@@ -137,6 +133,7 @@ function moveItem(id, direction) {
       } else {
         message.MaterialSnackbar.showSnackbar({message: 'An error occured.'});
       }
+      $('#card_' + id + '_progress').hide();
     });
 }
 

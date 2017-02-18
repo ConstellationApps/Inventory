@@ -18,10 +18,9 @@
 <dialog id="newItem" class="mdl-dialog">
     <h4 class="mdl-dialog__title">New Item</h4>
     <div class="mdl-dialog__content mdl-grid">
-        <form method="post" action="{% url 'api_v1_card_create' %}" id="newItemForm" class="mdl-grid">
+        <form method="post" action="{% url 'api_v1_card_create' id %}" id="newItemForm" class="mdl-grid">
             {% csrf_token %}
             {{ form.stage.as_hidden }}
-            {{ form.board.as_hidden }}
             <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label mdl-cell--12-col mdl-cell--bottom">
                 {{ form.name }}
                 <label class="mdl-textfield__label" for="{{ form.name.id_for_label }}">Name</label>
@@ -49,10 +48,9 @@
 <dialog id="editItem" class="mdl-dialog">
     <h4 class="mdl-dialog__title">Edit Item</h4>
     <div class="mdl-dialog__content mdl-grid">
-        <form method="post" action="{% url 'api_v1_card_edit' 0 %}" id="editItemForm" class="mdl-grid" name="0">
+        <form method="post" action="{% url 'api_v1_card_edit' id 0 %}" id="editItemForm" class="mdl-grid" name="0">
             {% csrf_token %}
             {{ editForm.stage.as_hidden }}
-            {{ editForm.board.as_hidden }}
             <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label mdl-cell--12-col mdl-cell--bottom">
                 {{ editForm.name }}
                 <label class="mdl-textfield__label" for="{{ editForm.name.id_for_label }}">Name</label>
@@ -85,12 +83,11 @@
     var board_id = "{{ id }}"
     var url_api_v1_stage_list = "{% url 'api_v1_stage_list' %}";
     var url_api_v1_board_active_cards = "{% url 'api_v1_board_active_cards' id %}";
-    var url_api_v1_card_move_left = "{% url 'api_v1_card_move_left' 0 %}";
-    var url_api_v1_card_move_right = "{% url 'api_v1_card_move_right' 0 %}";
-    var url_api_v1_card_archive = "{% url 'api_v1_card_archive' 0 %}";
-    var url_api_v1_card_edit = "{% url 'api_v1_card_edit' 0 %}";
+    var url_api_v1_card_move_left = "{% url 'api_v1_card_move_left' id 0 %}";
+    var url_api_v1_card_move_right = "{% url 'api_v1_card_move_right' id 0 %}";
+    var url_api_v1_card_archive = "{% url 'api_v1_card_archive' id 0 %}";
+    var url_api_v1_card_edit = "{% url 'api_v1_card_edit' id 0 %}";
     var stage_form_id="{{ form.stage.id_for_label }}";
-    var new_board_id="{{ form.board.id_for_label }}";
     var edit_board_id="{{ editForm.board.id_for_label }}";
     var edit_name_id="{{ editForm.name.id_for_label }}";
     var edit_quantity_id="{{ editForm.quantity.id_for_label }}";
@@ -102,6 +99,8 @@
 {% endblock %}
 
 {% block content %}
+{% load guardian_tags %}
+{% get_obj_perms request.user for board as "board_perms" %}
 {% verbatim %}
 <div class="mdl-grid board" id="board" style="width:100%">
     <div class="waiting-spinner mdl-spinner mdl-js-spinner is-active"></div>
@@ -118,7 +117,7 @@
                 <div class="mdl-card__supporting-text mdl-color-text--white">
                     <div id="card_{{id}}_notes" class="card_notes">{{notes}}</div>
 {% endverbatim %}
-{% if can_move %}
+{% if "action_move_cards" in board_perms %}
 {% verbatim %}
                     <button onclick="moveItem({{id}}, 'left')" id="card_{{id}}_left_button" class="card_button card_left_button mdl-cell--hide-tablet mdl-cell--hide-phone">
                         <i class="material-icons">chevron_left</i>
@@ -134,21 +133,27 @@
                     </button>
 {% endverbatim %}
 {% endif %}
-  <div class="card_extra_buttons"><div class="card_extra_buttons_inner">
-{% if can_add %}
 {% verbatim %}
-    <span onclick="editItem({{id}})" id="card_{{id}}_edit_button" class="card_button card_edit_button">
-      <i class="material-icons">mode_edit</i>
-    </span>
+                    <div class="card_extra_buttons">
+                      <div class="card_extra_buttons_inner">
+{% endverbatim %}
+{% if "action_add_cards" in board_perms %}
+{% verbatim %}
+                        <span onclick="editItem({{id}})" id="card_{{id}}_edit_button" class="card_button card_edit_button">
+                          <i class="material-icons">mode_edit</i>
+                        </span>
 {% endverbatim %}
 {% endif %}
-{% if can_delete %}
+{% if "action_archive_cards" in board_perms %}
 {% verbatim %}
-                    <span onclick="deleteItem({{id}})" id="card_{{id}}_close_button" class="card_button card_close_button"><i class="material-icons">close</i></span>
+                        <span onclick="deleteItem({{id}})" id="card_{{id}}_close_button" class="card_button card_close_button">
+                          <i class="material-icons">close</i>
+                        </span>
 {% endverbatim %}
 {% endif %}
-  </div></div>
 {% verbatim %}
+                      </div>
+                    </div>
                     <div id="card_{{id}}_progress" class="progress"> <div class="mdl-progress mdl-js-progress mdl-progress__indeterminate"></div></div>
                 </div>
             </div>
@@ -162,12 +167,23 @@
 <div class="divider"></div>
 {% endverbatim %}
 <div class="fixed-action-btn">
+  {% if "action_manage_board" in board_perms %}
+  <a href="{% url 'manage_board_edit' id %}" class="fab">
+    <button id="archive" class="mdl-button mdl-js-button mdl-button--fab mdl-button--accent">
+      <i class="material-icons">settings</i>
+    </button>
+  </a>
+  {% endif %}
+
+  {% if "action_archive_cards" in board_perms %}
   <a href="{% url 'view_board_archive' id %}" class="fab">
     <button id="archive" class="mdl-button mdl-js-button mdl-button--fab mdl-button--accent">
       <i class="material-icons">archive</i>
     </button>
   </a>
-  {% if can_add %}
+  {% endif %}
+
+  {% if "action_add_cards" in board_perms %}
   <button id="showNewItem" class="mdl-button mdl-js-button mdl-button--fab mdl-button--colored">
     <i class="material-icons">add</i>
   </button>

@@ -21,7 +21,7 @@
 <script>
     var board_id = "{{ id }}"
     var url_api_v1_board_archived_cards = "{% url 'api_v1_board_archived_cards' id %}";
-    var url_api_v1_card_unarchive = "{% url 'api_v1_card_unarchive' 0 %}";
+    var url_api_v1_card_unarchive = "{% url 'api_v1_card_unarchive' id 0 %}";
 </script>
 {% endblock %}
 

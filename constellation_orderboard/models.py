@@ -2,6 +2,9 @@ from django.db import models
 from django.core.exceptions import ValidationError
 from django.contrib.auth.models import Group
 
+from guardian.shortcuts import assign_perm, remove_perm, get_perms
+
+
 class Card(models.Model):
     name = models.CharField(max_length=128)
     quantity = models.IntegerField(default=1)
@@ -11,27 +14,69 @@ class Card(models.Model):
     board = models.ForeignKey('Board', blank=True, null=True)
     archived = models.BooleanField(default=False)
 
+
 class Board(models.Model):
     name = models.CharField(max_length=128)
     desc = models.TextField()
     archived = models.BooleanField(default=False)
 
-    # We could do this with django permissions, but we want them to be granular
-    readGroup = models.ForeignKey(Group, null=True, blank=True,
-                                  related_name='+')
-    moveGroup = models.ForeignKey(Group, null=True, blank=True,
-                                  related_name='+')
-    addGroup = models.ForeignKey(Group, null=True, blank=True,
-                                 related_name='+')
-    deleteGroup = models.ForeignKey(Group, null=True, blank=True,
-                                    related_name='+')
-    manageGroup = models.ForeignKey(Group, null=True, blank=True,
-                                    related_name='+')
+    def set_board_permissions(self, groups):
+        permcodenames = []
+        for node in Board._meta.permissions:
+            permcodenames.append(node[0])
+
+        for groupname, level in groups:
+            if groupname.startswith('group-'):
+                # This step gets the group name as it should be shown
+                group = groupname.replace('group-', '', 1)
+                group = Group.objects.get(pk=group)
+
+                # This step in a compound action converts the type to int
+                # and also reduces the index.  This accounts for the fact
+                # that the 0th index is 'no permissions'.
+                level = int(level) - 1
+
+                # Switch on permissions level
+                if level == 0:
+                    # If the level is zero, we should remove all
+                    # permissions
+                    for perm in permcodenames:
+                        remove_perm(perm, group, self)
+                else:
+                    # Add all the newly assigned perms
+                    for perm in permcodenames[:level]:
+                        assign_perm(perm, group, self)
+                    # Remove any perms that aren't supposed to be here
+                    for perm in permcodenames[level:]:
+                        remove_perm(perm, group, self)
+
+    def get_board_permissions(self):
+        groups = []
+        permcodenames = []
+        for node in Board._meta.permissions:
+            permcodenames.append(node[0])
+
+        for group in Group.objects.all():
+            level = len(set(
+                get_perms(group, self)).intersection(set(permcodenames))) + 1
+
+            groups.append({
+                'name': group.name,
+                'id': group.id,
+                'level': level
+            })
+
+        return groups
 
     class Meta:
         permissions = (
-            ("create_board", "Can create a order board"),
+            ("action_read_board", "Can read an order board"),
+            ("action_add_cards", "Can add cards to an order board"),
+            ("action_move_cards", "Can move cards on an order board"),
+            ("action_archive_cards", "Can archive cards from an order board"),
+            ("action_manage_board", "Can manage an order board"),
         )
+
 
 class Stage(models.Model):
     name = models.CharField(max_length=128)
@@ -67,8 +112,3 @@ class Stage(models.Model):
         # Save each one without checking uniqueness
         super(Stage, self).save()
         super(Stage, otherStage).save()
-
-    class Meta:
-        permissions = (
-            ("modify_stages", "Can modify board stages"),
-        )

@@ -9,9 +9,9 @@ urlpatterns = [
 
     url(r'^view/list$', views.view_list,
         name="view_list"),
-    url(r'^view/board/([\d]*)$', views.view_board,
+    url(r'^view/board/(?P<board_id>\d+)$', views.view_board,
         name="view_board"),
-    url(r'^view/board/([\d]*)/archive$', views.view_board_archive,
+    url(r'^view/board/(?P<board_id>\d+)/archive$', views.view_board_archive,
         name="view_board_archive"),
 
 # =============================================================================
@@ -20,7 +20,7 @@ urlpatterns = [
 
     url(r'^manage/boards$', views.manage_boards,
         name="manage_boards"),
-    url(r'^manage/board/([\d]*)/edit$', views.manage_board_edit,
+    url(r'^manage/board/(?P<board_id>\d+)/edit$', views.manage_board_edit,
         name="manage_board_edit"),
     url(r'^manage/stages$', views.manage_stages,
         name="manage_stages"),
@@ -38,40 +38,64 @@ urlpatterns = [
 # API Routes related to Board Operations
 # -----------------------------------------------------------------------------
 
-    url(r'^api/v1/board/list$', views.api_v1_board_list,
+    url(r'^api/v1/board/list$',
+        views.api_v1_board_list,
         name="api_v1_board_list"),
-    url(r'^api/v1/board/create$', views.api_v1_board_create,
+
+    url(r'^api/v1/board/create$',
+        views.api_v1_board_create,
         name="api_v1_board_create"),
-    url(r'^api/v1/board/([\d]*)/update$', views.api_v1_board_update,
+
+    url(r'^api/v1/board/(?P<board_id>\d+)/update$',
+        views.api_v1_board_update,
         name="api_v1_board_update"),
-    url(r'^api/v1/board/([\d]*)/archive$', views.api_v1_board_archive,
+
+    url(r'^api/v1/board/(?P<board_id>\d+)/archive$',
+        views.api_v1_board_archive,
         name="api_v1_board_archive"),
-    url(r'^api/v1/board/([\d]*)/unarchive$', views.api_v1_board_unarchive,
+
+    url(r'^api/v1/board/(?P<board_id>\d+)/unarchive$',
+        views.api_v1_board_unarchive,
         name="api_v1_board_unarchive"),
-    url(r'^api/v1/board/([\d]*)/active-cards$',
+
+    url(r'^api/v1/board/(?P<board_id>\d+)/active-cards$',
         views.api_v1_board_active_cards,
         name="api_v1_board_active_cards"),
-    url(r'^api/v1/board/([\d]*)/archived-cards$',
+
+    url(r'^api/v1/board/(?P<board_id>\d+)/archived-cards$',
         views.api_v1_board_archived_cards,
         name="api_v1_board_archived_cards"),
-    url(r'^api/v1/board/([\d]*)/info$', views.api_v1_board_info,
+
+    url(r'^api/v1/board/(?P<board_id>\d+)/info$',
+        views.api_v1_board_info,
         name="api_v1_board_info"),
 
 # -----------------------------------------------------------------------------
 # API Routes related to Card Operations
 # -----------------------------------------------------------------------------
 
-    url(r'^api/v1/card/create$', views.api_v1_card_create,
+    url(r'^api/v1/card/create-on/(?P<board_id>\d+)$',
+        views.api_v1_card_create,
         name="api_v1_card_create"),
-    url(r'^api/v1/card/([\d]*)/edit$', views.api_v1_card_edit,
+
+    url(r'^api/v1/card/(?P<board_id>\d+)-(?P<card_id>\d+)/edit$',
+        views.api_v1_card_edit,
         name="api_v1_card_edit"),
-    url(r'^api/v1/card/([\d]*)/archive$', views.api_v1_card_archive,
+
+    url(r'^api/v1/card/(?P<board_id>\d+)-(?P<card_id>\d+)/archive$',
+        views.api_v1_card_archive,
         name="api_v1_card_archive"),
-    url(r'^api/v1/card/([\d]*)/unarchive$', views.api_v1_card_unarchive,
+
+    url(r'^api/v1/card/(?P<board_id>\d+)-(?P<card_id>\d+)/unarchive$',
+        views.api_v1_card_unarchive,
         name="api_v1_card_unarchive"),
-    url(r'^api/v1/card/([\d]*)/move-right$', views.api_v1_card_move_right,
+
+    url(r'^api/v1/card/(?P<board_id>\d+)-(?P<card_id>\d+)/move-right$',
+        views.api_v1_card_move_right,
         name="api_v1_card_move_right"),
-    url(r'^api/v1/card/([\d]*)/move-left$', views.api_v1_card_move_left,
+
+    url(r'^api/v1/card/(?P<board_id>\d+)-(?P<card_id>\d+)/move-left$',
+        views.api_v1_card_move_left,
         name="api_v1_card_move_left"),
 
 # -----------------------------------------------------------------------------

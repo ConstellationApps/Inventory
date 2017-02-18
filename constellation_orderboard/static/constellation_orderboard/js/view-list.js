@@ -16,8 +16,8 @@ $(document).ready(function(){
 /* Call APIs to get the JSON board_data */
 function getboard_data() {
   /* Get the list of stages */
+  boards_data = { boards: [] };
   $.getJSON(url_api_v1_board_list, function(boards){
-    boards_data = { boards: [] };
     for (var i = 0, len = boards.length; i < len; i++) {
       if(boards[i].fields.archived == false) {
         boards_data.boards.push({
@@ -28,7 +28,6 @@ function getboard_data() {
         });
       }
     }
-    renderTemplate(boards_data);
   })
     .fail(function(jqXHR) {
       if (jqXHR.status == 404) {
@@ -36,7 +35,10 @@ function getboard_data() {
       } else {
         message.MaterialSnackbar.showSnackbar({message: 'An error occured.'});
       }
-    });
+    })
+  .always(function() {
+    renderTemplate(boards_data);
+  });
 }
 
 /* render compiled handlebars template */
