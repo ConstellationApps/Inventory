@@ -6,21 +6,21 @@ os.chdir(os.path.normpath(os.path.join(os.path.abspath(__file__), os.pardir)))
 README = open(os.path.join(os.path.dirname(__file__), 'README.md')).read()
 
 setup(
-    name = 'Constellation-OrderBoard',
-    version = '0.1.1',
-    packages = ['constellation_orderboard'],
-    include_package_data = True,
-    license = 'ISC License',
-    description = 'Constellation Suite - Order Management',
-    long_description = README,
-    url = 'https://github.com/ConstellationApps/',
-    author = 'Constellation Developers',
-    author_email = 'bugs@constellationapps.org',
+    name='Constellation-OrderBoard',
+    version='0.2.0',
+    packages=['constellation_orderboard'],
+    include_package_data=True,
+    license='ISC License',
+    description='Constellation Suite - Order Management',
+    long_description=README,
+    url='https://github.com/ConstellationApps/',
+    author='Constellation Developers',
+    author_email='bugs@constellationapps.org',
     install_requires=[
         'constellation_base>=0.1.3',
         'django-guardian',
     ],
-    classifiers =[
+    classifiers=[
         'Environment :: Web Environment',
         'Framework :: Django',
         'Intended Audience :: Developers',
