@@ -193,7 +193,7 @@ def api_v1_board_update(request, board_id):
             board.desc = newDesc
             board.save()
             return HttpResponse(json.dumps({
-                "board": reverse("view_board", args=[board_id, ])
+                "board": reverse("constellation_orderboard:view_board", args=[board_id, ])
             }))
         except AttributeError:
             return HttpResponseServerError("Invalid board ID")

@@ -18,7 +18,7 @@
 <dialog id="newItem" class="mdl-dialog">
     <h4 class="mdl-dialog__title">New Item</h4>
     <div class="mdl-dialog__content mdl-grid">
-        <form method="post" action="{% url 'api_v1_card_create' id %}" id="newItemForm" class="mdl-grid">
+        <form method="post" action="{% url 'constellation_orderboard:api_v1_card_create' id %}" id="newItemForm" class="mdl-grid">
             {% csrf_token %}
             {{ form.stage.as_hidden }}
             <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label mdl-cell--12-col mdl-cell--bottom">
@@ -48,7 +48,7 @@
 <dialog id="editItem" class="mdl-dialog">
     <h4 class="mdl-dialog__title">Edit Item</h4>
     <div class="mdl-dialog__content mdl-grid">
-        <form method="post" action="{% url 'api_v1_card_edit' id 0 %}" id="editItemForm" class="mdl-grid" name="0">
+        <form method="post" action="{% url 'constellation_orderboard:api_v1_card_edit' id 0 %}" id="editItemForm" class="mdl-grid" name="0">
             {% csrf_token %}
             {{ editForm.stage.as_hidden }}
             <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label mdl-cell--12-col mdl-cell--bottom">
@@ -81,12 +81,12 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/handlebars.js/4.0.5/handlebars.min.js"></script>
 <script>
     var board_id = "{{ id }}"
-    var url_api_v1_stage_list = "{% url 'api_v1_stage_list' %}";
-    var url_api_v1_board_active_cards = "{% url 'api_v1_board_active_cards' id %}";
-    var url_api_v1_card_move_left = "{% url 'api_v1_card_move_left' id 0 %}";
-    var url_api_v1_card_move_right = "{% url 'api_v1_card_move_right' id 0 %}";
-    var url_api_v1_card_archive = "{% url 'api_v1_card_archive' id 0 %}";
-    var url_api_v1_card_edit = "{% url 'api_v1_card_edit' id 0 %}";
+    var url_api_v1_stage_list = "{% url 'constellation_orderboard:api_v1_stage_list' %}";
+    var url_api_v1_board_active_cards = "{% url 'constellation_orderboard:api_v1_board_active_cards' id %}";
+    var url_api_v1_card_move_left = "{% url 'constellation_orderboard:api_v1_card_move_left' id 0 %}";
+    var url_api_v1_card_move_right = "{% url 'constellation_orderboard:api_v1_card_move_right' id 0 %}";
+    var url_api_v1_card_archive = "{% url 'constellation_orderboard:api_v1_card_archive' id 0 %}";
+    var url_api_v1_card_edit = "{% url 'constellation_orderboard:api_v1_card_edit' id 0 %}";
     var stage_form_id="{{ form.stage.id_for_label }}";
     var edit_board_id="{{ editForm.board.id_for_label }}";
     var edit_name_id="{{ editForm.name.id_for_label }}";
@@ -168,7 +168,7 @@
 {% endverbatim %}
 <div class="fixed-action-btn">
   {% if "action_manage_board" in board_perms %}
-  <a href="{% url 'manage_board_edit' id %}" class="fab">
+  <a href="{% url 'constellation_orderboard:manage_board_edit' id %}" class="fab">
     <button id="archive" class="mdl-button mdl-js-button mdl-button--fab mdl-button--accent">
       <i class="material-icons">settings</i>
     </button>
@@ -176,7 +176,7 @@
   {% endif %}
 
   {% if "action_archive_cards" in board_perms %}
-  <a href="{% url 'view_board_archive' id %}" class="fab">
+  <a href="{% url 'constellation_orderboard:view_board_archive' id %}" class="fab">
     <button id="archive" class="mdl-button mdl-js-button mdl-button--fab mdl-button--accent">
       <i class="material-icons">archive</i>
     </button>

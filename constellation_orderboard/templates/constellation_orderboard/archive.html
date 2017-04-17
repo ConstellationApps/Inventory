@@ -20,8 +20,8 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/handlebars.js/4.0.5/handlebars.min.js"></script>
 <script>
     var board_id = "{{ id }}"
-    var url_api_v1_board_archived_cards = "{% url 'api_v1_board_archived_cards' id %}";
-    var url_api_v1_card_unarchive = "{% url 'api_v1_card_unarchive' id 0 %}";
+    var url_api_v1_board_archived_cards = "{% url 'constellation_orderboard:api_v1_board_archived_cards' id %}";
+    var url_api_v1_card_unarchive = "{% url 'constellation_orderboard:api_v1_card_unarchive' id 0 %}";
 </script>
 {% endblock %}
 

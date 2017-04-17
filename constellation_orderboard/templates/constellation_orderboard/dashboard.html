@@ -6,14 +6,14 @@
         <li class="mdl-list__item">
             <span class="mdl-list__item-primary-content">
                 <i class="material-icons mdl-list__item-icon">pageview</i>
-                <a href="{% url 'view_list' %}">View Boards List</a>
+                <a href="{% url 'constellation_orderboard:view_list' %}">View Boards List</a>
             </span>
         </li>
         {% if perms.constellation_orderboard.create_board %}
         <li class="mdl-list__item">
             <span class="mdl-list__item-primary-content">
                 <i class="material-icons mdl-list__item-icon">settings</i>
-                <a href="{% url 'manage_boards' %}">Manage Boards</a>
+                <a href="{% url 'constellation_orderboard:manage_boards' %}">Manage Boards</a>
             </span>
         </li>
         {% endif %}
@@ -21,7 +21,7 @@
         <li class="mdl-list__item">
             <span class="mdl-list__item-primary-content">
                 <i class="material-icons mdl-list__item-icon">settings</i>
-                <a href="{% url 'manage_stages' %}">Manage Stages</a>
+                <a href="{% url 'constellation_orderboard:manage_stages' %}">Manage Stages</a>
             </span>
         </li>
         {% endif %}
