@@ -10,8 +10,8 @@ class Card(models.Model):
     quantity = models.IntegerField(default=1)
     units = models.CharField(max_length=128, blank=True)
     notes = models.TextField(blank=True)
-    stage = models.ForeignKey('Stage', blank=True, null=True)
-    board = models.ForeignKey('Board', blank=True, null=True)
+    stage = models.ForeignKey('Stage', blank=True, null=True, on_delete=models.SET_NULL)
+    board = models.ForeignKey('Board', blank=True, null=True, on_delete=models.SET_NULL)
     archived = models.BooleanField(default=False)
 
 
